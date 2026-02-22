@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🚀 SPACE ODYSSEY: GALACTIC ADVENTURE 🚀</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/cosmic-design.css">
+    <link rel="stylesheet" href="css/ui-panels.css">
+    <link rel="stylesheet" href="css/screens.css">
+    <link rel="stylesheet" href="css/sprites.css">
+    <link rel="stylesheet" href="css/effects.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/main.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-hub">
+        <!-- Main Canvas -->
+        <canvas id="spaceCanvas"></canvas>
+        <div class="canvas-overlay"></div>
+
+        <!-- Particle Container -->
+        <div id="particleContainer" class="particle-container"></div>
+
+        <!-- Player Stats Panel -->
+        <div class="cosmic-panel stats-panel">
+            <div class="stat-item">
+                <span class="stat-label">SCORE</span>
+                <span id="scoreValue" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">HIGH</span>
+                <span id="highScoreValue" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">COINS</span>
+                <span id="coinValue" class="stat-value">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">LEVEL</span>
+                <span id="levelValue" class="stat-value">1</span>
+            </div>
+        </div>
+
+        <!-- Resource Bars -->
+        <div class="cosmic-panel resources-panel">
+            <div class="resource-bar">
+                <span class="bar-label">HEALTH</span>
+                <div class="bar-container">
+                    <div id="healthBar" class="bar-fill health" style="width: 100%"></div>
+                </div>
+                <span id="healthValue" class="resource-value">100/100</span>
+            </div>
+            <div class="resource-bar">
+                <span class="bar-label">ENERGY</span>
+                <div class="bar-container">
+                    <div id="energyBar" class="bar-fill energy" style="width: 100%"></div>
+                </div>
+                <span id="energyValue" class="resource-value">100/100</span>
+            </div>
+            <div class="resource-bar">
+                <span class="bar-label">SHIELD</span>
+                <div class="bar-container">
+                    <div id="shieldBar" class="bar-fill shield" style="width: 50%"></div>
+                </div>
+                <span id="shieldValue" class="resource-value">50/100</span>
+            </div>
+        </div>
+
+        <!-- Mini-Game Selector -->
+        <div class="cosmic-panel game-selector">
+            <div class="game-option active" data-game="asteroid" id="gameAsteroid">
+                <div class="game-icon asteroid"></div>
+                <span class="game-name">ASTEROID</span>
+                <span class="game-score" id="asteroidScore">0</span>
+            </div>
+            <div class="game-option" data-game="shooter" id="gameShooter">
+                <div class="game-icon shooter"></div>
+                <span class="game-name">SHOOTER</span>
+                <span class="game-score" id="shooterScore">0</span>
+            </div>
+            <div class="game-option" data-game="defender" id="gameDefender">
+                <div class="game-icon defender"></div>
+                <span class="game-name">DEFENDER</span>
+                <span class="game-score" id="defenderScore">0</span>
+            </div>
+            <div class="game-option" data-game="portal" id="gamePortal">
+                <div class="game-icon portal"></div>
+                <span class="game-name">PORTAL</span>
+                <span class="game-score" id="portalScore">0</span>
+            </div>
+        </div>
+
+        <!-- Power-ups Panel -->
+        <div class="cosmic-panel powerups-panel">
+            <div class="powerup-slot" id="powerupShield" data-tooltip="Shield - Protects from damage">
+                <div class="powerup-icon shield"></div>
+                <span class="powerup-count" id="shieldCount">3</span>
+            </div>
+            <div class="powerup-slot" id="powerupWeapon" data-tooltip="Weapon Upgrade - Double damage">
+                <div class="powerup-icon weapon"></div>
+                <span class="powerup-count" id="weaponCount">2</span>
+            </div>
+            <div class="powerup-slot" id="powerupSpeed" data-tooltip="Speed Boost - Faster movement">
+                <div class="powerup-icon speed"></div>
+                <span class="powerup-count" id="speedCount">1</span>
+            </div>
+            <div class="powerup-slot" id="powerupMagnet" data-tooltip="Magnet - Attracts coins">
+                <div class="powerup-icon magnet"></div>
+                <span class="powerup-count" id="magnetCount">0</span>
+            </div>
+        </div>
+
+        <!-- Title Screen -->
+        <div id="titleScreen" class="screen title-screen">
+            <div class="galaxy-logo">
+                <span style="--i:1">S</span>
+                <span style="--i:2">P</span>
+                <span style="--i:3">A</span>
+                <span style="--i:4">C</span>
+                <span style="--i:5">E</span>
+                <span style="--i:6">&nbsp;</span>
+                <span style="--i:7">O</span>
+                <span style="--i:8">D</span>
+                <span style="--i:9">Y</span>
+                <span style="--i:10">S</span>
+                <span style="--i:11">S</span>
+                <span style="--i:12">E</span>
+                <span style="--i:13">Y</span>
+            </div>
+            <button class="start-button" id="startGameBtn">BEGIN JOURNEY</button>
+            <button class="start-button" id="shopBtn" style="width: 150px; font-size: 18px;">🚀 SHOP</button>
+            <div style="margin-top: var(--space-lg); color: var(--space-nebula-blue); font-size: 14px;">
+                Use Arrow Keys or WASD • Space to Shoot • P to Pause
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="gameOverScreen" class="screen gameover-screen hidden">
+            <div class="gameover-title">GAME OVER</div>
+            <div class="score-display">
+                <div class="score-card">
+                    <div class="score-label">FINAL SCORE</div>
+                    <div class="score-number" id="finalScore">0</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-label">HIGH SCORE</div>
+                    <div class="score-number" id="finalHighScore">0</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-label">COINS</div>
+                    <div class="score-number" id="finalCoins">0</div>
+                </div>
+            </div>
+            <button class="start-button" id="restartBtn">PLAY AGAIN</button>
+            <button class="start-button" id="menuBtn" style="width: 150px;">MENU</button>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shopScreen" class="screen shop-screen hidden">
+            <div class="galaxy-logo" style="font-size: 48px; margin-bottom: var(--space-lg);">COSMIC SHOP</div>
+            <div class="shop-grid">
+                <div class="shop-item" data-item="shield" data-price="50">
+                    <div class="shop-item-icon shield"></div>
+                    <div class="shop-item-name">SHIELD</div>
+                    <div class="shop-item-price">50</div>
+                </div>
+                <div class="shop-item" data-item="weapon" data-price="75">
+                    <div class="shop-item-icon weapon"></div>
+                    <div class="shop-item-name">WEAPON</div>
+                    <div class="shop-item-price">75</div>
+                </div>
+                <div class="shop-item" data-item="speed" data-price="60">
+                    <div class="shop-item-icon speed"></div>
+                    <div class="shop-item-name">SPEED</div>
+                    <div class="shop-item-price">60</div>
+                </div>
+                <div class="shop-item" data-item="magnet" data-price="100">
+                    <div class="shop-item-icon magnet"></div>
+                    <div class="shop-item-name">MAGNET</div>
+                    <div class="shop-item-price">100</div>
+                </div>
+                <div class="shop-item" data-item="health" data-price="30">
+                    <div class="shop-item-icon" style="background: radial-gradient(circle, #ff4d4d, #ff9f4d); border-radius: 50%;"></div>
+                    <div class="shop-item-name">HEALTH</div>
+                    <div class="shop-item-price">30</div>
+                </div>
+                <div class="shop-item" data-item="energy" data-price="40">
+                    <div class="shop-item-icon" style="background: radial-gradient(circle, #4d9fff, #6bc5ff); border-radius: 50%;"></div>
+                    <div class="shop-item-name">ENERGY</div>
+                    <div class="shop-item-price">40</div>
+                </div>
+            </div>
+            <div class="stat-item" style="margin-bottom: var(--space-lg);">
+                <span class="stat-label">YOUR COINS</span>
+                <span id="shopCoinValue" class="stat-value">0</span>
+            </div>
+            <button class="start-button" id="closeShopBtn" style="width: 150px;">CLOSE</button>
+        </div>
+
+        <!-- Pause Screen -->
+        <div id="pauseScreen" class="screen hidden" style="background: rgba(10, 12, 20, 0.8);">
+            <div class="galaxy-logo" style="font-size: 48px;">PAUSED</div>
+            <button class="start-button" id="resumeBtn" style="width: 150px;">RESUME</button>
+        </div>
+
+        <!-- Mini-Game Screens -->
+        <div id="miniGameScreen" class="screen hidden" style="background: rgba(0, 0, 0, 0.9);">
+            <div id="miniGameContent" style="width: 100%; height: 100%; position: relative;"></div>
+            <button class="close-button" id="closeMiniGame" style="top: 20px; right: 20px;">✕</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/particle-system.js"></script>
+    <script src="js/save-manager.js"></script>
+    <script src="js/audio-manager.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/enemies.js"></script>
+    <script src="js/projectiles.js"></script>
+    <script src="js/powerups.js"></script>
+    <script src="js/collision.js"></script>
+    <script src="js/scoring.js"></script>
+    <script src="js/asteroid-minigame.js"></script>
+    <script src="js/shooter-minigame.js"></script>
+    <script src="js/defender-minigame.js"></script>
+    <script src="js/portal-minigame.js"></script>
+    <script src="js/mini-games.js"></script>
+    <script src="js/shop.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/input-handler.js"></script>
+    <script src="js/game-core.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
+
+
+<!DOCTYPE html><html lang="""en"></html><head>    <meta charset="UTF-8">    <meta name="""view/* =================================================================================EFFECTS & PARTICLES - Explosions, beams, shields, and visual effects=""================================================================================*//* Particle Container */.particle-container {    position: absolute;    inset: 0;    pointer-events: none;    z-index: var(--z-effects);    overflow: hidden;}/* Base Particle */.particle {    position: absolute;    pointer-events: none;    border-radius: 50%;    will-change: transform, opacity;}/* Star Particles */.particle-star {    background: white;    box-shadow: 0 0 10px currentColor;    animation: twinkle var(--duration, 3s) ease-in-out infinite;}.particle-star::after {    content: '';    position: absolute;    top: 50%;    left: 50%;    width: 200%;    height: 200%;    background: radial-gradient(circle, white 0%, transparent 70%);    transform: translate(-50%, -50%);    opacity: 0.3;}/* Explosion Effects */.explosion-effect {    position: absolute;    pointer-events: none;    z-index: 20;    animation: explode 0.5s ease-out forwards;}.explosion-core {    position: absolute;    top: 50%;    left: 50%;    width: 40px;    height: 40px;    background: radial-gradient(circle, #ffff00, #ffaa00, #ff5500, #ff0000);    border-radius: 50%;    transform: translate(-50%, -50%);    box-shadow: 0 0 50px #ffaa00;    animation: pulse 0.1s ease-out infinite;}.explosion-ring {    position: absolute;    top: 50%;    left: 50%;    width: 80px;    height: 80px;    border: 3px solid #ffaa00;    border-radius: 50%;    transform: translate(-50%, -50%);    animation: expandRing 0.5s ease-out forwards;}.explosion-ring:nth-child(2) {    width: 120px;    height: 120px;    border-color: #ff5500;    animation-delay: 0.1s;}.explosion-ring:nth-child(3) {    width: 160px;    height: 160px;    border-color: #ff0000;    animation-delay: 0.2s;}@keyframes expandRing {    0% {        transform: translate(-50%, -50%) scale(0.5);        opacity: 1;    }    100% {        transform: translate(-50%, -50%) scale(2);        opacity: 0;    }}/* Debris Particles */.debris-particle {    position: absolute;    background: #8B7355;    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);    animation: debrisFly var(--duration, 1s) ease-out forwards;}@keyframes debrisFly {    0% {        transform: translate(0, 0) rotate(0deg);        opacity: 1;    }    100% {        transform: translate(var(--tx, 100px), var(--ty, -100px)) rotate(720deg);        opacity: 0;    }}/* Shockwave Effect */.shockwave {    position: absolute;    border: 3px solid rgba(255, 255, 255, 0.8);    border-radius: 50%;    animation: shockwaveExpand 1s ease-out forwards;}@keyframes shockwaveExpand {    0% {        width: 10px;        height: 10px;        opacity: 1;        border-width: 3px;    }    100% {        width: 200px;        height: 200px;        opacity: 0;        border-width: 1px;    }}/* Tractor Beam */.tractor-beam {    position: absolute;    width: 4px;    background: linear-gradient(180deg,         rgba(107, 197, 255, 0.9) 0%,        rgba(107, 197, 255, 0.6) 30%,        rgba(107, 197, 255, 0.3) 60%,        transparent 100%    );    transform-origin: top;    animation: beamOscillate 0.5s ease-in-out infinite;    pointer-events: none;    z-index: 15;    box-shadow: 0 0 20px rgba(107, 197, 255, 0.8);}.tractor-beam::before {    content: '';    position: absolute;    top: 0;    left: -5px;    width: 14px;    height: 14px;    background: radial-gradient(circle, #6bc5ff, transparent);    border-radius: 50%;    animation: beamPulse 0.5s ease-in-out infinite;}.tractor-beam::after {    content: '';    position: absolute;    bottom: 0;    left: -10px;    width: 24px;    height: 24px;    background: radial-gradient(circle, #6bc5ff, transparent);    border-radius: 50%;    filter: blur(5px);}@keyframes beamOscillate {    0%, 100% { transform: scaleX(1); opacity: 0.8; }    50% { transform: scaleX(1.2); opacity: 1; }}@keyframes beamPulse {    0%, 100% { transform: scale(1); opacity: 0.8; }    50% { transform: scale(1.5); opacity: 1; }}/* Shield Effect */.shield-effect {    position: absolute;    border: 3px solid var(--shield-color, #6bc5ff);    border-radius: 50%;    animation: shieldPulse 2s infinite;    pointer-events: none;    z-index: 10;    box-shadow: 0 0 30px var(--shield-color, #6bc5ff);}.shield-effect::before {    content: '';    position: absolute;    top: -5px;    left: -5px;    right: -5px;    bottom: -5px;    border: 2px solid rgba(255, 255, 255, 0.5);    border-radius: 50%;    animation: shieldRotate 3s linear infinite;}.shield-effect::after {    c

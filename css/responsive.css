@@ -1,0 +1,1051 @@
+/* 
+=================================================================================
+RESPONSIVE DESIGN - Mobile, tablet, and desktop adaptations for SPACE ODYSSEY
+=================================================================================
+*/
+
+/* ==========================================================================
+   Base Responsive Setup
+   ========================================================================== */
+
+:root {
+    --mobile-scale: 0.8;
+    --tablet-scale: 0.9;
+    --desktop-scale: 1;
+}
+
+/* ==========================================================================
+   Large Desktop (1200px and above)
+   ========================================================================== */
+
+@media (min-width: 1600px) {
+    .game-hub {
+        width: 1400px;
+        height: 900px;
+    }
+
+    .galaxy-logo {
+        font-size: 96px;
+    }
+
+    .stat-value {
+        font-size: 32px;
+        min-width: 80px;
+    }
+
+    .powerups-panel {
+        transform: translateX(-50%) scale(1.2);
+    }
+
+    .minimap {
+        width: 250px;
+        height: 250px;
+    }
+
+    .boss-health-container {
+        width: 600px;
+    }
+}
+
+@media (min-width: 2000px) {
+    .game-hub {
+        width: 1800px;
+        height: 1100px;
+    }
+
+    .cosmic-panel {
+        padding: var(--space-lg);
+    }
+
+    .stat-item {
+        padding: var(--space-md) var(--space-lg);
+    }
+
+    .stat-label {
+        font-size: 18px;
+    }
+
+    .stat-value {
+        font-size: 40px;
+    }
+
+    .game-option {
+        padding: var(--space-md);
+    }
+
+    .game-name {
+        font-size: 18px;
+    }
+
+    .powerup-slot {
+        width: 80px;
+        height: 80px;
+    }
+
+    .powerup-icon {
+        width: 50px;
+        height: 50px;
+    }
+}
+
+/* ==========================================================================
+   Standard Desktop (1024px to 1199px)
+   ========================================================================== */
+
+@media (max-width: 1199px) and (min-width: 1024px) {
+    .game-hub {
+        width: 1000px;
+        height: 700px;
+    }
+
+    .stats-panel {
+        padding: var(--space-sm);
+    }
+
+    .stat-item {
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    .stat-value {
+        font-size: 20px;
+        min-width: 50px;
+    }
+
+    .resources-panel {
+        min-width: 180px;
+    }
+
+    .game-selector {
+        min-width: 130px;
+    }
+
+    .powerups-panel {
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
+    }
+
+    .powerup-slot {
+        width: 50px;
+        height: 50px;
+    }
+
+    .powerup-icon {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+/* ==========================================================================
+   Tablet Landscape (768px to 1023px)
+   ========================================================================== */
+
+@media (max-width: 1023px) and (min-width: 768px) {
+    .game-hub {
+        width: 95vw;
+        height: 85vh;
+    }
+
+    /* Stats Panel - Horizontal Scroll on Tablet */
+    .stats-panel {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding: var(--space-sm);
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .stats-panel::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .stats-panel::-webkit-scrollbar-thumb {
+        background: var(--space-nebula-blue);
+        border-radius: 2px;
+    }
+
+    .stat-item {
+        display: inline-flex;
+        margin-right: var(--space-sm);
+        padding: var(--space-xs) var(--space-sm);
+    }
+
+    .stat-value {
+        font-size: 18px;
+        min-width: 45px;
+    }
+
+    /* Resource Panel - Compact */
+    .resources-panel {
+        top: auto;
+        bottom: var(--space-md);
+        left: var(--space-md);
+        right: auto;
+        min-width: 150px;
+        padding: var(--space-sm);
+    }
+
+    .resource-bar {
+        gap: var(--space-xs);
+    }
+
+    .bar-label {
+        width: 45px;
+        font-size: 10px;
+    }
+
+    .bar-container {
+        height: 15px;
+    }
+
+    /* Game Selector - Smaller */
+    .game-selector {
+        top: auto;
+        bottom: var(--space-md);
+        right: var(--space-md);
+        min-width: 120px;
+        padding: var(--space-sm);
+    }
+
+    .game-option {
+        padding: var(--space-xs);
+    }
+
+    .game-icon {
+        width: 25px;
+        height: 25px;
+    }
+
+    .game-name {
+        font-size: 12px;
+    }
+
+    /* Power-ups - Bottom Center */
+    .powerups-panel {
+        bottom: var(--space-lg);
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+    }
+
+    .powerup-slot {
+        width: 45px;
+        height: 45px;
+    }
+
+    .powerup-icon {
+        width: 25px;
+        height: 25px;
+    }
+
+    /* Screens */
+    .galaxy-logo {
+        font-size: 48px;
+    }
+
+    .shop-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+        max-width: 600px;
+    }
+
+    .gameover-title {
+        font-size: 48px;
+    }
+
+    .score-display {
+        gap: var(--space-md);
+    }
+
+    .score-card {
+        padding: var(--space-md);
+    }
+
+    .score-number {
+        font-size: 36px;
+    }
+
+    /* Minimap */
+    .minimap {
+        width: 150px;
+        height: 150px;
+        bottom: var(--space-md);
+        right: var(--space-md);
+    }
+
+    /* Boss Health */
+    .boss-health-container {
+        width: 400px;
+        top: var(--space-md);
+    }
+
+    .boss-name {
+        font-size: 20px;
+    }
+
+    .boss-health-bar {
+        height: 25px;
+    }
+}
+
+/* ==========================================================================
+   Mobile Landscape (568px to 767px)
+   ========================================================================== */
+
+@media (max-width: 767px) and (min-width: 568px) and (orientation: landscape) {
+    .game-hub {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .game-hub::before {
+        border-radius: 0;
+    }
+
+    /* Hide some panels in landscape to save space */
+    .resources-panel {
+        display: none;
+    }
+
+    .minimap {
+        display: none;
+    }
+
+    /* Compact Stats */
+    .stats-panel {
+        top: 5px;
+        padding: 5px;
+    }
+
+    .stat-item {
+        padding: 3px 8px;
+    }
+
+    .stat-label {
+        font-size: 10px;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-size: 14px;
+        min-width: 35px;
+    }
+
+    /* Game Selector - Horizontal */
+    .game-selector {
+        top: auto;
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        min-width: auto;
+        flex-direction: row;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .game-option {
+        flex: 1;
+        padding: 3px;
+    }
+
+    .game-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .game-name {
+        font-size: 10px;
+        display: none; /* Hide text, show only icons */
+    }
+
+    .game-score {
+        font-size: 10px;
+    }
+
+    /* Power-ups - Compact */
+    .powerups-panel {
+        bottom: 60px;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .powerup-slot {
+        width: 35px;
+        height: 35px;
+    }
+
+    .powerup-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .powerup-count {
+        font-size: 8px;
+        min-width: 15px;
+        height: 15px;
+    }
+
+    /* Screens */
+    .galaxy-logo {
+        font-size: 32px;
+    }
+
+    .start-button {
+        width: 150px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .gameover-title {
+        font-size: 32px;
+    }
+
+    .score-display {
+        gap: var(--space-sm);
+    }
+
+    .score-card {
+        padding: var(--space-sm);
+    }
+
+    .score-number {
+        font-size: 24px;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+        top: 50px;
+        right: 10px;
+        max-width: 200px;
+    }
+
+    .toast {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+}
+
+/* ==========================================================================
+   Mobile Portrait (320px to 567px)
+   ========================================================================== */
+
+@media (max-width: 567px) {
+    .game-hub {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .game-hub::before {
+        border-radius: 0;
+    }
+
+    /* Hide non-essential panels */
+    .resources-panel,
+    .minimap,
+    .connection-status,
+    .fps-counter {
+        display: none !important;
+    }
+
+    /* Stats Panel - Minimal */
+    .stats-panel {
+        top: 5px;
+        left: 5px;
+        right: 5px;
+        padding: 5px;
+        justify-content: space-around;
+    }
+
+    .stat-item {
+        padding: 3px 5px;
+        gap: 5px;
+    }
+
+    .stat-label {
+        font-size: 8px;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        font-size: 12px;
+        min-width: 25px;
+    }
+
+    /* Game Selector - Bottom Bar */
+    .game-selector {
+        top: auto;
+        bottom: 70px;
+        left: 5px;
+        right: 5px;
+        min-width: auto;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 5px;
+        border-radius: 25px;
+    }
+
+    .game-option {
+        flex: 1;
+        padding: 5px 2px;
+        justify-content: center;
+    }
+
+    .game-option.active::after {
+        display: none;
+    }
+
+    .game-icon {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+    }
+
+    .game-name,
+    .game-score {
+        display: none;
+    }
+
+    /* Power-ups - Bottom Center */
+    .powerups-panel {
+        bottom: 10px;
+        left: 5px;
+        right: 5px;
+        transform: none;
+        width: auto;
+        padding: 5px;
+        gap: 5px;
+        border-radius: 30px;
+        justify-content: space-around;
+    }
+
+    .powerup-slot {
+        width: 35px;
+        height: 35px;
+    }
+
+    .powerup-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .powerup-count {
+        font-size: 8px;
+        min-width: 14px;
+        height: 14px;
+        top: -3px;
+        right: -3px;
+    }
+
+    /* Screens */
+    .galaxy-logo {
+        font-size: 28px;
+        -webkit-text-stroke: 1px var(--space-nebula-blue);
+    }
+
+    .start-button {
+        width: 130px;
+        height: 35px;
+        font-size: 14px;
+        margin: 5px;
+    }
+
+    /* Title Screen */
+    .title-screen {
+        padding: 20px;
+    }
+
+    /* Game Over Screen */
+    .gameover-title {
+        font-size: 28px;
+    }
+
+    .score-display {
+        flex-direction: column;
+        gap: 10px;
+        width: 80%;
+    }
+
+    .score-card {
+        padding: 10px;
+    }
+
+    .score-label {
+        font-size: 12px;
+    }
+
+    .score-number {
+        font-size: 20px;
+    }
+
+    /* Shop Screen */
+    .shop-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 10px;
+        max-width: 90%;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+
+    .shop-item {
+        padding: 10px;
+    }
+
+    .shop-item-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .shop-item-name {
+        font-size: 14px;
+    }
+
+    .shop-item-price {
+        font-size: 12px;
+    }
+
+    .close-button {
+        top: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+        top: 50px;
+        left: 10px;
+        right: 10px;
+        max-width: none;
+    }
+
+    .toast {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    /* Achievement popup */
+    .achievement-popup {
+        top: 50px;
+        left: 10px;
+        right: 10px;
+        transform: none;
+        padding: 8px 12px;
+    }
+
+    .achievement-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+
+    .achievement-title {
+        font-size: 14px;
+    }
+
+    .achievement-desc {
+        font-size: 10px;
+    }
+
+    /* Game state indicator */
+    .game-state-indicator {
+        font-size: 20px;
+        padding: 10px 20px;
+        white-space: normal;
+        text-align: center;
+        width: 80%;
+    }
+
+    /* Boss Health */
+    .boss-health-container {
+        width: 90%;
+        top: 50px;
+        padding: 8px;
+    }
+
+    .boss-name {
+        font-size: 16px;
+    }
+
+    .boss-health-bar {
+        height: 20px;
+    }
+
+    .boss-phase {
+        width: 25px;
+        height: 25px;
+        font-size: 12px;
+    }
+
+    /* Combo meter */
+    .combo-count {
+        font-size: 32px;
+    }
+
+    .combo-bar {
+        width: 150px;
+    }
+
+    /* Wave indicator */
+    .wave-indicator {
+        top: 50px;
+        left: 5px;
+        padding: 5px 10px;
+    }
+
+    .wave-number {
+        font-size: 18px;
+    }
+
+    .wave-label {
+        font-size: 10px;
+    }
+
+    .wave-progress {
+        width: 60px;
+    }
+
+    /* Countdown */
+    .countdown-number {
+        width: 50px;
+        height: 50px;
+        font-size: 30px;
+    }
+}
+
+/* ==========================================================================
+   Small Mobile (under 320px)
+   ========================================================================== */
+
+@media (max-width: 319px) {
+    /* Ultra minimal - show only essentials */
+    .stats-panel .stat-item:not(:first-child) {
+        display: none;
+    }
+
+    .game-selector {
+        display: none;
+    }
+
+    .powerups-panel {
+        bottom: 5px;
+    }
+
+    .powerup-slot {
+        width: 30px;
+        height: 30px;
+    }
+
+    .powerup-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .galaxy-logo {
+        font-size: 22px;
+    }
+
+    .start-button {
+        width: 100px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .gameover-title {
+        font-size: 22px;
+    }
+
+    .score-card {
+        padding: 5px;
+    }
+
+    .score-number {
+        font-size: 16px;
+    }
+}
+
+/* ==========================================================================
+   Tablet and Mobile Touch Optimizations
+   ========================================================================== */
+
+@media (hover: none) and (pointer: coarse) {
+    /* Increase touch targets */
+    .game-option,
+    .powerup-slot,
+    .shop-item,
+    .start-button,
+    .close-button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    /* Remove hover effects */
+    .game-option:hover,
+    .powerup-slot:hover,
+    .shop-item:hover,
+    .start-button:hover {
+        transform: none;
+    }
+
+    /* Add active state for touch */
+    .game-option:active,
+    .powerup-slot:active,
+    .shop-item:active,
+    .start-button:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+
+    /* Prevent double-tap zoom */
+    * {
+        touch-action: manipulation;
+    }
+
+    /* Increase font sizes for better readability */
+    .stat-label,
+    .game-name,
+    .bar-label,
+    .resource-value {
+        font-size: 14px;
+    }
+
+    /* Add more spacing for touch */
+    .game-selector {
+        gap: 8px;
+    }
+
+    .powerups-panel {
+        gap: 8px;
+    }
+}
+
+/* ==========================================================================
+   Orientation Specific
+   ========================================================================== */
+
+@media (orientation: landscape) and (max-height: 500px) {
+    /* Super short landscape - hide more elements */
+    .resources-panel,
+    .minimap,
+    .wave-indicator,
+    .combo-meter {
+        display: none !important;
+    }
+
+    .stats-panel {
+        top: 2px;
+    }
+
+    .game-selector {
+        bottom: 45px;
+    }
+
+    .powerups-panel {
+        bottom: 2px;
+    }
+
+    .galaxy-logo {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .start-button {
+        height: 30px;
+        font-size: 12px;
+    }
+}
+
+/* ==========================================================================
+   High-DPI Screens
+   ========================================================================== */
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Sharper images for Retina displays */
+    .game-icon,
+    .powerup-icon,
+    .shop-item-icon {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+
+    /* Thinner borders for sharper look */
+    .cosmic-panel {
+        border-width: 1px;
+    }
+}
+
+@media (-webkit-min-device-pixel-ratio: 3), (min-resolution: 288dpi) {
+    /* Even sharper for 4K mobile */
+    .stat-value {
+        text-shadow: 0 0 5px currentColor;
+    }
+}
+
+/* ==========================================================================
+   Dark Mode Support (for OLED displays)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --space-black: #000000;
+        --space-deep: #050505;
+    }
+
+    .game-hub {
+        box-shadow: 0 0 100px rgba(107, 197, 255, 0.2);
+    }
+}
+
+/* ==========================================================================
+   Light Mode Support (optional, for accessibility)
+   ========================================================================== */
+
+@media (prefers-color-scheme: light) {
+    .game-hub {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .cosmic-panel {
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--space-black);
+    }
+
+    .stat-label,
+    .game-name,
+    .bar-label {
+        color: var(--space-blue);
+    }
+
+    .stat-value {
+        color: var(--space-nebula-purple);
+    }
+}
+
+/* ==========================================================================
+   Accessibility - Reduced Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .game-hub::before,
+    .game-hub::after,
+    .particle,
+    .explosion-effect,
+    .shield-effect,
+    .portal-effect {
+        animation: none !important;
+    }
+}
+
+/* ==========================================================================
+   Accessibility - High Contrast
+   ========================================================================== */
+
+@media (prefers-contrast: high) {
+    :root {
+        --space-nebula-blue: #00ffff;
+        --space-nebula-purple: #ff00ff;
+        --space-nebula-pink: #ff69b4;
+        --space-star-yellow: #ffff00;
+    }
+
+    .cosmic-panel {
+        border-width: 3px;
+    }
+
+    .stat-value,
+    .game-score,
+    .resource-value {
+        font-weight: 900;
+    }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .game-hub,
+    .cosmic-panel,
+    .screen,
+    .toast-container,
+    .achievement-popup,
+    .particle-container {
+        display: none !important;
+    }
+
+    body {
+        background: white;
+        display: block;
+        overflow: auto;
+    }
+
+    .print-stats {
+        display: block;
+        padding: 20px;
+        font-family: 'Courier New', monospace;
+        color: black;
+    }
+}
+
+/* ==========================================================================
+   Loading States for Responsive Images
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .game-icon {
+        background-size: contain;
+    }
+}
+
+/* ==========================================================================
+   Safe Area Insets (for notched phones)
+   ========================================================================== */
+
+@supports (padding: max(0px)) {
+    .game-hub {
+        padding-left: max(var(--space-sm), env(safe-area-inset-left));
+        padding-right: max(var(--space-sm), env(safe-area-inset-right));
+        padding-top: max(var(--space-sm), env(safe-area-inset-top));
+        padding-bottom: max(var(--space-sm), env(safe-area-inset-bottom));
+    }
+
+    .stats-panel {
+        top: max(var(--space-md), env(safe-area-inset-top));
+        left: max(var(--space-md), env(safe-area-inset-left));
+        right: max(var(--space-md), env(safe-area-inset-right));
+    }
+
+    .powerups-panel {
+        bottom: max(var(--space-lg), env(safe-area-inset-bottom));
+    }
+}
+
+/* ==========================================================================
+   Foldable Devices Support
+   ========================================================================== */
+
+@media (spanning: single-fold-vertical) {
+    .game-hub {
+        width: calc(env(fold-left) + env(fold-width) + (100vw - env(fold-right)));
+    }
+}
+
+@media (spanning: single-fold-horizontal) {
+    .game-hub {
+        height: calc(env(fold-top) + env(fold-height) + (100vh - env(fold-bottom)));
+    }
+}
+
+/* ==========================================================================
+   End of Responsive Styles
+   ========================================================================== */
