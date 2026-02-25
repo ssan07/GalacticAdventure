@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Planet Defender – Achievements</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/reset.css"/>
+  <link rel="stylesheet" href="../css/buttons.css"/>
+  <link rel="stylesheet" href="../css/animations.css"/>
+  <link rel="stylesheet" href="../css/achievements-screen.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-achievements">
+
+  <canvas id="ach-bg-canvas"></canvas>
+
+  <div class="ach-wrapper">
+    <header class="ach-header">
+      <button class="btn btn-ghost" id="btn-back">← BACK</button>
+      <div class="ach-title-block">
+        <h1 class="ach-title">🏅 ACHIEVEMENTS</h1>
+        <p class="ach-sub" id="ach-progress-text">0 / 0 unlocked</p>
+      </div>
+    </header>
+
+    <div class="ach-progress-bar-outer">
+      <div class="ach-progress-bar-fill" id="ach-progress-bar-fill"></div>
+    </div>
+
+    <nav class="ach-filter-tabs">
+      <button class="ach-filter-tab active" data-filter="all">ALL</button>
+      <button class="ach-filter-tab" data-filter="unlocked">UNLOCKED</button>
+      <button class="ach-filter-tab" data-filter="locked">LOCKED</button>
+    </nav>
+
+    <div class="ach-grid" id="ach-grid">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- Achievement tooltip -->
+  <div class="ach-tooltip hidden" id="ach-tooltip">
+    <div class="ach-tt-icon" id="ach-tt-icon">🏆</div>
+    <div class="ach-tt-name" id="ach-tt-name"></div>
+    <div class="ach-tt-desc" id="ach-tt-desc"></div>
+    <div class="ach-tt-progress" id="ach-tt-progress"></div>
+  </div>
+
+  <script src="../js/utils/MathUtils.js"></script>
+  <script src="../js/utils/RNG.js"></script>
+  <script src="../js/utils/SaveManager.js"></script>
+  <script>
+    /**
+     * All achievement definitions and their unlock logic.
+     * Progress is tracked via SaveManager.
+     */
+    const ACHIEVEMENTS = [
+      // Shooting
+      { id: 'first_shot',      icon: '🎯', name: 'First Shot',        desc: 'Fire your first laser.',                    cat: 'combat',   goal: 1,     stat: 'shotsFired' },
+      { id: 'sharpshooter',    icon: '🎯', name: 'Sharpshooter',      desc: 'Fire 500 laser shots.',                     cat: 'combat',   goal: 500,   stat: 'shotsFired' },
+      { id: 'gunner',          icon: '🔫', name: 'Gunner',            desc: 'Fire 5,000 laser shots.',                   cat: 'combat',   goal: 5000,  stat: 'shotsFired' },
+      { id: 'artillery',       icon: '💣', name: 'Artillery Master',  desc: 'Fire 50,000 laser shots.',                  cat: 'combat',   goal: 50000, stat: 'shotsFired' },
+      // Asteroids
+      { id: 'first_kill',      icon: '☄️', name: 'First Casualty',    desc: 'Destroy your first asteroid.',              cat: 'combat',   goal: 1,     stat: 'totalAsteroids' },
+      { id: 'asteroid_hunter', icon: '🪨', name: 'Asteroid Hunter',   desc: 'Destroy 100 asteroids.',                    cat: 'combat',   goal: 100,   stat: 'totalAsteroids' },
+      { id: 'asteroid_slayer', icon: '⚔️', name: 'Asteroid Slayer',   desc: 'Destroy 1,000 asteroids.',                  cat: 'combat',   goal: 1000,  stat: 'totalAsteroids' },
+      { id: 'asteroid_god',    icon: '🌌', name: 'Cosmic Destroyer',  desc: 'Destroy 10,000 asteroids.',                 cat: 'combat',   goal: 10000, stat: 'totalAsteroids' },
+      // Waves
+      { id: 'wave5',           icon: '🌊', name: 'Wave Rider',        desc: 'Survive to Wave 5.',                        cat: 'survival', goal: 5,     stat: 'maxWave' },
+      { id: 'wave10',          icon: '🌊', name: 'Wave Surfer',       desc: 'Survive to Wave 10.',                       cat: 'survival', goal: 10,    stat: 'maxWave' },
+      { id: 'wave25',          icon: '🌊', name: 'Storm Rider',       desc: 'Survive to Wave 25.',                       cat: 'survival', goal: 25,    stat: 'maxWave' },
+      { id: 'wave50',          icon: '🌊', name: 'Hurricane Master',  desc: 'Survive to Wave 50.',                       cat: 'survival', goal: 50,    stat: 'maxWave' },
+      { id: 'wave100',         icon: '🌪️', name: 'Planet Immortal',   desc: 'Survive to Wave 100.',                      cat: 'survival', goal: 100,   stat: 'maxWave' },
+      // Score
+      { id: 'score1k',         icon: '🏆', name: 'Rookie Score',      desc: 'Reach 1,000 points in one game.',           cat: 'score',    goal: 1000,   stat: 'bestScore' },
+      { id: 'score10k',        icon: '🏆', name: 'Decent Score',      desc: 'Reach 10,000 points.',                      cat: 'score',    goal: 10000,  stat: 'bestScore' },
+      { id: 'score100k',       icon: '🏆', name: 'Expert Score',      desc: 'Reach 100,000 points.',                     cat: 'score',    goal: 100000, stat: 'bestScore' },
+      { id: 'score1m',         icon: '💎', name: 'Legendary Score',   desc: 'Reach 1,000,000 points.',                   cat: 'score',    goal: 1000000,stat: 'bestScore' },
+      // Coins
+      { id: 'coins100',        icon: '🪙', name: 'Coin Collector',    desc: 'Earn 100 coins total.',                     cat: 'economy',  goal: 100,   stat: 'totalCoins' },
+      { id: 'coins1k',         icon: '🪙', name: 'Coin Hoarder',      desc: 'Earn 1,000 coins total.',                   cat: 'economy',  goal: 1000,  stat: 'totalCoins' },
+      { id: 'coins10k',        icon: '💰', name: 'Wealthy Defender',  desc: 'Earn 10,000 coins total.',                  cat: 'economy',  goal: 10000, stat: 'totalCoins' },
+      { id: 'coins100k',       icon: '💎', name: 'Cosmic Billionaire',desc: 'Earn 100,000 coins total.',                 cat: 'economy',  goal: 100000,stat: 'totalCoins' },
+      // Games played
+      { id: 'play1',           icon: '🎮', name: 'First Game',        desc: 'Play your first game.',                     cat: 'misc',     goal: 1,     stat: 'gamesPlayed' },
+      { id: 'play10',          icon: '🎮', name: 'Dedicated',         desc: 'Play 10 games.',                            cat: 'misc',     goal: 10,    stat: 'gamesPlayed' },
+      { id: 'play50',          icon: '🎮', name: 'Addicted',          desc: 'Play 50 games.',                            cat: 'misc',     goal: 50,    stat: 'gamesPlayed' },
+      { id: 'play100',         icon: '🎮', name: 'True Commander',    desc: 'Play 100 games.',                           cat: 'misc',     goal: 100,   stat: 'gamesPlayed' },
+      // Shop / powerups
+      { id: 'first_buy',       icon: '🛒', name: 'First Purchase',    desc: 'Buy your first item from the shop.',        cat: 'shop',     goal: 1,     stat: 'totalPurchases' },
+      { id: 'big_spender',     icon: '💸', name: 'Big Spender',       desc: 'Spend 1,000 coins in the shop.',            cat: 'shop',     goal: 1000,  stat: 'totalSpent' },
+      { id: 'powerup_user',    icon: '⚡', name: 'Powerup Fan',       desc: 'Use 10 powerups.',                          cat: 'shop',     goal: 10,    stat: 'powerupsUsed' },
+      { id: 'powerup_addict',  icon: '⚡', name: 'Powerup Addict',    desc: 'Use 100 powerups.',                         cat: 'shop',     goal: 100,   stat: 'powerupsUsed' },
+      // Special
+      { id: 'close_call',      icon: '😰', name: 'Close Call',        desc: 'Survive with less than 10 HP.',             cat: 'special',  goal: 1,     stat: 'closeCalls' },
+      { id: 'no_damage',       icon: '🛡️', name: 'Untouched',         desc: 'Complete Wave 1 without taking any damage.',cat: 'special',  goal: 1,     stat: 'noDamageWaves' },
+      { id: 'nova_user',       icon: '💥', name: 'Nuclear Option',    desc: 'Use a Nova Bomb.',                          cat: 'special',  goal: 1,     stat: 'novaBombs' },
+      { id: 'boss_killer',     icon: '👹', name: 'Boss Slayer',       desc: 'Destroy a boss asteroid.',                  cat: 'special',  goal: 1,     stat: 'bossKills' },
+      { id: 'boss5',           icon: '💀', name: 'Boss Hunter',       desc: 'Destroy 5 boss asteroids.',                 cat: 'special',  goal: 5,     stat: 'bossKills' },
+    ];
+
+    class AchievementsPage {
+      constructor() {
+        this.save   = new SaveManager('planetDefender');
+        this.rng    = new RNG();
+        this.ctx    = null;
+        this.stars  = [];
+        this.filter = 'all';
+        this.init();
+      }
+
+      init() {
+        this.setupBgCanvas();
+        this.buildStars(150);
+        this.bindFilterTabs();
+        this.bindButtons();
+        this.renderAchievements();
+        this.animateBg();
+      }
+
+      getProgress() {
+        const gs = this.save.getGlobalStats();
+        return {
+          shotsFired:       gs.shotsFired || 0,
+          totalAsteroids:   gs.totalAsteroids || 0,
+          maxWave:          this.save.getMaxWave() || 0,
+          bestScore:        this.save.getBestScore() || 0,
+          totalCoins:       gs.totalCoins || 0,
+          gamesPlayed:      gs.gamesPlayed || 0,
+          totalPurchases:   gs.totalPurchases || 0,
+          totalSpent:       gs.totalSpent || 0,
+          powerupsUsed:     gs.powerupsUsed || 0,
+          closeCalls:       gs.closeCalls || 0,
+          noDamageWaves:    gs.noDamageWaves || 0,
+          novaBombs:        gs.novaBombs || 0,
+          bossKills:        gs.bossKills || 0,
+        };
+      }
+
+      renderAchievements() {
+        const prog  = this.getProgress();
+        const unlocked_ids = this.save.getUnlockedAchievements();
+        const grid  = document.getElementById('ach-grid');
+
+        let filtered = ACHIEVEMENTS;
+        if (this.filter === 'unlocked') {
+          filtered = ACHIEVEMENTS.filter(a => unlocked_ids.includes(a.id));
+        } else if (this.filter === 'locked') {
+          filtered = ACHIEVEMENTS.filter(a => !unlocked_ids.includes(a.id));
+        }
+
+        const total    = ACHIEVEMENTS.length;
+        const unlockedCount = unlocked_ids.length;
+        document.getElementById('ach-progress-text').textContent = `${unlockedCount} / ${total} unlocked`;
+        const pct = total > 0 ? (unlockedCount / total) * 100 : 0;
+        document.getElementById('ach-progress-bar-fill').style.width = pct + '%';
+
+        grid.innerHTML = filtered.map(ach => {
+          const isUnlocked = unlocked_ids.includes(ach.id);
+          const current    = prog[ach.stat] || 0;
+          const pct2       = Math.min((current / ach.goal) * 100, 100);
+          return `
+            <div class="ach-card ${isUnlocked ? 'unlocked' : 'locked'}" data-id="${ach.id}">
+              <div class="ach-card-icon">${isUnlocked ? ach.icon : '🔒'}</div>
+              <div class="ach-card-body">
+                <div class="ach-card-name">${isUnlocked ? ach.name : '???'}</div>
+                <div class="ach-card-desc">${isUnlocked ? ach.desc : 'Keep playing to unlock...'}</div>
+                ${!isUnlocked ? `
+                  <div class="ach-progress-mini">
+                    <div class="ach-progress-mini-fill" style="width:${pct2}%"></div>
+                  </div>
+                  <div class="ach-progress-text-sm">${Math.min(current, ach.goal).toLocaleString()} / ${ach.goal.toLocaleString()}</div>
+                ` : ''}
+              </div>
+              ${isUnlocked ? '<div class="ach-checkmark">✓</div>' : ''}
+            </div>
+          `;
+        }).join('');
+      }
+
+      bindFilterTabs() {
+        document.querySelectorAll('.ach-filter-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('.ach-filter-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            this.filter = tab.dataset.filter;
+            this.renderAchievements();
+          });
+        });
+      }
+
+      bindButtons() {
+        document.getElementById('btn-back').addEventListener('click', () => {
+          this.send('navigate', 'back');
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') this.send('navigate', 'back');
+        });
+      }
+
+      send(type, payload) {
+        if (window.parent !== window) {
+          window.parent.postMessage({ type, data: payload }, '*');
+        }
+      }
+
+      setupBgCanvas() {
+        const cvs = document.getElementById('ach-bg-canvas');
+        cvs.width  = window.innerWidth;
+        cvs.height = window.innerHeight;
+        this.ctx   = cvs.getContext('2d');
+        window.addEventListener('resize', () => {
+          cvs.width  = window.innerWidth;
+          cvs.height = window.innerHeight;
+        });
+      }
+
+      buildStars(n) {
+        this.stars = [];
+        const w = window.innerWidth, h = window.innerHeight;
+        for (let i = 0; i < n; i++) {
+          this.stars.push({
+            x: Math.random()*w, y: Math.random()*h,
+            r: 0.3 + Math.random()*1.2,
+            alpha: 0.1 + Math.random()*0.4,
+            phase: Math.random()*Math.PI*2, spd: 0.3+Math.random()*0.8,
+          });
+        }
+      }
+
+      animateBg(t = 0) {
+        const ctx = this.ctx;
+        const w = ctx.canvas.width, h = ctx.canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        for (const s of this.stars) {
+          const a = s.alpha * (0.5 + 0.5 * Math.sin(t * 0.001 * s.spd + s.phase));
+          ctx.globalAlpha = a;
+          ctx.fillStyle = '#c8e4ff';
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(ts => this.animateBg(ts));
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window._achPage = new AchievementsPage();
+    });
+  </script>
+</body>
+</html>
+
+

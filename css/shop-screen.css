@@ -1,0 +1,247 @@
+/**
+ * css/shop-screen.css
+ * Styles for pages/shop.html
+ */
+
+html, body { overflow: hidden; width:100%; height:100%; }
+
+body.page-shop {
+  background: radial-gradient(ellipse at 50% 20%, #0a1230 0%, #030712 70%);
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
+#shop-bg-canvas { position: fixed; inset:0; z-index:0; pointer-events:none; }
+
+.shop-wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.shop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.shop-title-block {}
+.shop-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  color: var(--color-accent);
+  text-shadow: var(--glow-accent);
+  letter-spacing: var(--tracking-wider);
+}
+.shop-sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+.shop-balance-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.balance-label {
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+}
+.balance-display {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.coin-icon-lg { font-size: 22px; filter: drop-shadow(0 0 6px var(--color-gold-glow)); }
+.balance-amount {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 900;
+  color: var(--color-gold);
+  text-shadow: var(--glow-gold);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* ── Tabs ── */
+.shop-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  padding: 0 var(--space-6);
+  overflow-x: auto;
+}
+.shop-tab {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+  padding: var(--space-4) var(--space-5);
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+  white-space: nowrap;
+}
+.shop-tab:hover  { color: var(--color-text); }
+.shop-tab.active { color: var(--color-accent); border-bottom-color: var(--color-accent); }
+
+/* ── Body + grid ── */
+.shop-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-6);
+}
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+/* ── Item card ── */
+.shop-card {
+  position: relative;
+  background: var(--card-bg, var(--color-surface));
+  border: 1px solid var(--card-border, var(--color-border));
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-bounce),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.shop-card:hover {
+  background: color-mix(in srgb, var(--card-bg, var(--color-surface)) 80%, transparent);
+  border-color: var(--card-border, var(--color-border-2));
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+}
+.shop-card.selected {
+  border-color: var(--color-accent);
+  box-shadow: var(--glow-accent), 0 0 0 2px rgba(56,190,255,0.15);
+  transform: translateY(-2px);
+}
+.shop-card.cant-afford { opacity: 0.55; }
+.shop-card.maxed       { opacity: 0.5; pointer-events: none; }
+
+.card-rarity-label {
+  position: absolute;
+  top: 8px; right: 10px;
+  font-family: var(--font-display);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+}
+.card-icon   { font-size: 32px; text-align: center; filter: drop-shadow(0 0 6px rgba(255,255,255,0.15)); }
+.card-name   { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--color-text); letter-spacing: var(--tracking-wide); text-align: center; }
+.card-desc   { font-family: var(--font-body); font-size: var(--text-xs); color: var(--color-text-dim); text-align: center; line-height: 1.4; flex: 1; }
+.card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+.card-cost   { font-family: var(--font-display); font-size: var(--text-sm); font-weight: 700; color: var(--color-gold); }
+.card-cost.too-expensive { color: var(--color-red); }
+.card-stack, .card-level { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--color-text-muted); }
+.card-maxed-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: var(--text-xl); font-weight: 900;
+  color: var(--color-gold); text-shadow: var(--glow-gold);
+  background: rgba(3,7,18,0.55);
+  border-radius: var(--radius-xl);
+  letter-spacing: var(--tracking-widest);
+  pointer-events: none;
+}
+
+.shop-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--space-4); padding: var(--space-16);
+  color: var(--color-text-muted);
+  font-family: var(--font-body); font-size: var(--text-md);
+}
+.empty-icon { font-size: 48px; }
+
+/* ── Selection bar ── */
+.shop-selection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  flex-shrink: 0;
+  min-height: 70px;
+}
+.sel-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+#sel-name { font-family: var(--font-display); font-size: var(--text-md); font-weight: 700; color: var(--color-text); }
+.sel-desc  { font-family: var(--font-body); font-size: var(--text-sm); color: var(--color-text-dim); max-width: 500px; }
+
+.shop-footer {
+  padding: var(--space-3) var(--space-6);
+  border-top: 1px solid rgba(56,190,255,0.06);
+  flex-shrink: 0;
+}
+
+/* ── Purchase splash ── */
+.purchase-splash {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  animation: fade-in var(--dur-fast) ease;
+}
+.purchase-splash.hidden { display: none; }
+.purchase-splash-inner {
+  text-align: center;
+  animation: scale-bounce 0.5s var(--ease-bounce) forwards;
+}
+.ps-icon { font-size: 72px; margin-bottom: var(--space-4); filter: drop-shadow(0 0 20px rgba(255,255,255,0.4)); }
+.ps-name { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 900; color: var(--color-accent); text-shadow: var(--glow-accent-l); letter-spacing: var(--tracking-widest); }
+.ps-msg  { font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-green); text-shadow: var(--glow-green); letter-spacing: var(--tracking-widest); margin-top: var(--space-2); }
+
+/* ── No coins overlay ── */
+.no-coins-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.7);
+}
+.no-coins-overlay.hidden { display: none; }
+.no-coins-box {
+  background: var(--color-surface);
+  border: 1px solid var(--color-red);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8);
+  text-align: center;
+  box-shadow: var(--glow-red), var(--shadow-xl);
+  animation: scale-in var(--dur-normal) var(--ease-bounce);
+}
+.no-coins-icon { font-size: 48px; display: block; margin-bottom: var(--space-4); }
+.no-coins-box p { font-family: var(--font-display); font-size: var(--text-xl); color: var(--color-red); font-weight: 700; }
+.no-coins-sub { font-size: var(--text-sm) !important; color: var(--color-text-dim) !important; font-family: var(--font-body) !important; margin-top: var(--space-2); }
+
+
+
+
+

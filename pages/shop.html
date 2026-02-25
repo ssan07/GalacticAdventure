@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Planet Defender – Shop</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/reset.css"/>
+  <link rel="stylesheet" href="../css/buttons.css"/>
+  <link rel="stylesheet" href="../css/animations.css"/>
+  <link rel="stylesheet" href="../css/shop-screen.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-shop">
+
+  <!-- Starfield BG -->
+  <canvas id="shop-bg-canvas"></canvas>
+
+  <div class="shop-wrapper">
+
+    <!-- Header -->
+    <header class="shop-header">
+      <button class="btn btn-ghost btn-back" id="btn-back">← BACK</button>
+      <div class="shop-title-block">
+        <h1 class="shop-title">COSMIC SHOP</h1>
+        <p class="shop-sub">Spend your hard-earned asteroid coins</p>
+      </div>
+      <div class="shop-balance-block">
+        <span class="balance-label">YOUR BALANCE</span>
+        <div class="balance-display">
+          <span class="coin-icon-lg">🪙</span>
+          <span class="balance-amount" id="shop-balance">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <nav class="shop-tabs" id="shop-tabs">
+      <button class="shop-tab active" data-tab="powerups">⚡ POWERUPS</button>
+      <button class="shop-tab" data-tab="upgrades">🔧 UPGRADES</button>
+      <button class="shop-tab" data-tab="consumables">💊 CONSUMABLES</button>
+      <button class="shop-tab" data-tab="cosmetics">✨ COSMETICS</button>
+    </nav>
+
+    <!-- Shop grid area -->
+    <div class="shop-body">
+      <div class="shop-grid" id="shop-grid">
+        <!-- Cards injected by JS -->
+      </div>
+      <div class="shop-empty hidden" id="shop-empty">
+        <span class="empty-icon">🛒</span>
+        <p>Nothing here yet — check back after more waves!</p>
+      </div>
+    </div>
+
+    <!-- Cart / selection info -->
+    <div class="shop-selection-bar" id="shop-selection-bar">
+      <div class="sel-info" id="sel-info">
+        <span id="sel-name">Select an item</span>
+        <span id="sel-desc" class="sel-desc"></span>
+      </div>
+      <button class="btn btn-primary btn-buy" id="btn-buy" disabled>
+        BUY — <span id="buy-cost">0</span> 🪙
+      </button>
+    </div>
+  </div>
+
+  <!-- Purchase feedback overlay -->
+  <div class="purchase-splash hidden" id="purchase-splash">
+    <div class="purchase-splash-inner">
+      <div class="ps-icon" id="ps-icon">⚡</div>
+      <div class="ps-name" id="ps-name">RAPID FIRE</div>
+      <div class="ps-msg">PURCHASED!</div>
+    </div>
+  </div>
+
+  <!-- Not enough coins overlay -->
+  <div class="no-coins-overlay hidden" id="no-coins-overlay">
+    <div class="no-coins-box">
+      <span class="no-coins-icon">😢</span>
+      <p>Not enough coins!</p>
+      <p class="no-coins-sub">Destroy more asteroids to earn coins.</p>
+      <button class="btn btn-ghost" id="btn-close-no-coins">OK</button>
+    </div>
+  </div>
+
+  <script src="../js/utils/MathUtils.js"></script>
+  <script src="../js/utils/RNG.js"></script>
+  <script src="../js/utils/SaveManager.js"></script>
+  <script>
+    /**
+     * ShopPage – Fully self-contained shop page.
+     * Catalog defined here; communicates back to parent via postMessage.
+     */
+
+    const SHOP_CATALOG = {
+      powerups: [
+        {
+          id: 'rapid_fire', name: 'Rapid Fire', icon: '⚡',
+          cost: 60, maxStack: 5, category: 'powerups',
+          desc: 'Triple your laser fire rate for 15 seconds.',
+          detail: 'Each charge gives you a 15-second burst of ultra-fast shooting. Essential for dense asteroid waves.',
+          effect: 'fireRateMultiplier: 3x, duration: 15s',
+          rarity: 'common',
+        },
+        {
+          id: 'triple_shot', name: 'Triple Shot', icon: '🔱',
+          cost: 100, maxStack: 3, category: 'powerups',
+          desc: 'Shoot three lasers simultaneously for 12 seconds.',
+          detail: 'Splits every shot into three spread beams covering a wide arc. Great for dealing with asteroid clusters.',
+          effect: 'projectiles: 3, spread: 18°, duration: 12s',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'shield_bubble', name: 'Shield Bubble', icon: '🛡️',
+          cost: 80, maxStack: 3, category: 'powerups',
+          desc: 'A protective bubble absorbs the next asteroid hit.',
+          detail: 'Creates an energy field that negates a single asteroid impact completely. Invaluable on the final waves.',
+          effect: 'absorbs: 1 hit',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'coin_magnet', name: 'Coin Magnet', icon: '🧲',
+          cost: 70, maxStack: 4, category: 'powerups',
+          desc: 'Attracts all coins on screen for 15 seconds.',
+          detail: 'A gravitational tether pulls floating coins directly to the planet. Perfect for maximising earnings.',
+          effect: 'range: full-screen, duration: 15s',
+          rarity: 'common',
+        },
+        {
+          id: 'nova_bomb', name: 'Nova Bomb', icon: '💥',
+          cost: 120, maxStack: 2, category: 'powerups',
+          desc: 'Obliterates every asteroid on screen instantly.',
+          detail: 'Fires a shockwave that destroys every asteroid regardless of size. All coins still drop as normal.',
+          effect: 'destroys: all on-screen, no cooldown',
+          rarity: 'rare',
+        },
+        {
+          id: 'laser_beam', name: 'Mega Laser', icon: '🔆',
+          cost: 150, maxStack: 2, category: 'powerups',
+          desc: 'A piercing beam cuts through all asteroids in a line.',
+          detail: 'A 2-second continuous energy beam that passes through everything in its path. Counts as continuous fire.',
+          effect: 'piercing: unlimited, duration: 2s',
+          rarity: 'rare',
+        },
+        {
+          id: 'freeze_time', name: 'Time Freeze', icon: '❄️',
+          cost: 180, maxStack: 2, category: 'powerups',
+          desc: 'Freezes all asteroids for 5 seconds.',
+          detail: 'Temporarily suspends all asteroid movement. You can still shoot freely. Best used just before a large wave hits.',
+          effect: 'freezes: all asteroids, duration: 5s',
+          rarity: 'epic',
+        },
+        {
+          id: 'turret', name: 'Auto Turret', icon: '🤖',
+          cost: 200, maxStack: 2, category: 'powerups',
+          desc: 'Deploys an AI-controlled turret for 20 seconds.',
+          detail: 'Spawns an orbiting turret that auto-targets the closest asteroid. Works independently of your clicks.',
+          effect: 'auto-target: nearest, duration: 20s',
+          rarity: 'epic',
+        },
+      ],
+      upgrades: [
+        {
+          id: 'dmg_up_1', name: 'Damage I', icon: '💥',
+          cost: 150, maxLevel: 5, category: 'upgrades',
+          desc: 'Permanently increases laser damage by +15%.',
+          detail: 'Enhances the core damage output of all laser shots. Stacks with other damage upgrades.',
+          effect: '+15% laser damage per level',
+          rarity: 'common',
+          upgradeKey: 'damage',
+        },
+        {
+          id: 'fire_rate_up', name: 'Fire Rate', icon: '🔥',
+          cost: 175, maxLevel: 5, category: 'upgrades',
+          desc: 'Permanently reduces cooldown between shots by 10%.',
+          detail: 'Improves the base fire rate of your planet cannons. Combines with Rapid Fire powerup.',
+          effect: '-10% shot cooldown per level',
+          rarity: 'common',
+          upgradeKey: 'fireRate',
+        },
+        {
+          id: 'health_up', name: 'Planet Shield', icon: '💚',
+          cost: 200, maxLevel: 5, category: 'upgrades',
+          desc: 'Increases maximum planet HP by +20.',
+          detail: 'Reinforces the planetary crust with energy shielding. Permanently increases your health ceiling.',
+          effect: '+20 max HP per level',
+          rarity: 'uncommon',
+          upgradeKey: 'maxHealth',
+        },
+        {
+          id: 'coin_bonus', name: 'Coin Collector', icon: '🪙',
+          cost: 120, maxLevel: 5, category: 'upgrades',
+          desc: 'Asteroids drop +10% more coins per level.',
+          detail: 'Tuned mining drones embedded in your defences extract more material from each destroyed asteroid.',
+          effect: '+10% coin drops per level',
+          rarity: 'common',
+          upgradeKey: 'coinBonus',
+        },
+        {
+          id: 'regen', name: 'HP Regen', icon: '💛',
+          cost: 300, maxLevel: 3, category: 'upgrades',
+          desc: 'Slowly regenerates planet HP every 5 seconds.',
+          detail: 'Nanobots constantly repair the planetary surface. At max level, recover up to 9 HP per 5 seconds.',
+          effect: '+3 HP per 5 seconds per level',
+          rarity: 'rare',
+          upgradeKey: 'regen',
+        },
+        {
+          id: 'multishot', name: 'Splitter Array', icon: '🎯',
+          cost: 250, maxLevel: 3, category: 'upgrades',
+          desc: 'Permanently adds +1 extra laser to every shot.',
+          detail: 'Installs additional orbital cannon arrays. Each level fires one more laser per click.',
+          effect: '+1 projectile per level',
+          rarity: 'uncommon',
+          upgradeKey: 'extraShots',
+        },
+        {
+          id: 'pierce', name: 'Penetrator', icon: '🏹',
+          cost: 350, maxLevel: 3, category: 'upgrades',
+          desc: 'Lasers pierce through +1 asteroid per level.',
+          detail: 'Upgrades laser tips with gravite cores that pass through asteroid material before dissipating.',
+          effect: '+1 pierce per level',
+          rarity: 'rare',
+          upgradeKey: 'pierce',
+        },
+        {
+          id: 'coin_magnet_passive', name: 'Gravity Well', icon: '🌀',
+          cost: 400, maxLevel: 2, category: 'upgrades',
+          desc: 'Passively attracts coins within 200px at all times.',
+          detail: 'A permanent low-power gravitational field keeps coins drifting towards your planet.',
+          effect: 'passive range: 200px',
+          rarity: 'epic',
+          upgradeKey: 'passiveMagnet',
+        },
+      ],
+      consumables: [
+        {
+          id: 'med_pack', name: 'Med Pack', icon: '💊',
+          cost: 50, maxStack: 10, category: 'consumables',
+          desc: 'Instantly restores 30 HP to your planet.',
+          detail: 'Emergency nanite injection for immediate HP recovery. Use it before you lose too much ground.',
+          effect: '+30 HP instant',
+          rarity: 'common',
+        },
+        {
+          id: 'mega_med', name: 'Mega Med Pack', icon: '💉',
+          cost: 120, maxStack: 5, category: 'consumables',
+          desc: 'Restores 75 HP instantly.',
+          detail: 'Enhanced trauma pack with premium nanite concentration. Saves you from near-death situations.',
+          effect: '+75 HP instant',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'full_restore', name: 'Full Repair', icon: '🏥',
+          cost: 300, maxStack: 2, category: 'consumables',
+          desc: 'Fully restores planet to maximum HP.',
+          detail: 'Complete orbital repair drone deployment. Returns the planet to pristine condition.',
+          effect: '+100% HP',
+          rarity: 'rare',
+        },
+        {
+          id: 'score_boost', name: 'Score Boost', icon: '⭐',
+          cost: 80, maxStack: 5, category: 'consumables',
+          desc: '2x score multiplier for 30 seconds.',
+          detail: 'Broadcasting victory signals that double all score gains for a short window.',
+          effect: '2x score, duration: 30s',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'coin_shower', name: 'Coin Shower', icon: '🌧️',
+          cost: 40, maxStack: 10, category: 'consumables',
+          desc: 'Instantly spawns 20 coins on screen.',
+          detail: 'Emergency resource drop. Useful to quickly buy another powerup mid-wave.',
+          effect: 'spawns 20 coins',
+          rarity: 'common',
+        },
+      ],
+      cosmetics: [
+        {
+          id: 'skin_blue', name: 'Ocean World', icon: '🌊',
+          cost: 300, maxStack: 1, category: 'cosmetics',
+          desc: 'Change planet skin to a deep ocean world.',
+          detail: 'Reskins your planet with deep ocean blues and white seafoam.',
+          effect: 'visual only',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'skin_red', name: 'Lava World', icon: '🌋',
+          cost: 300, maxStack: 1, category: 'cosmetics',
+          desc: 'Volcanic lava planet skin.',
+          detail: 'A geologically active world covered in rivers of magma.',
+          effect: 'visual only',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'skin_ice', name: 'Ice World', icon: '🧊',
+          cost: 300, maxStack: 1, category: 'cosmetics',
+          desc: 'A frozen tundra planet skin.',
+          detail: 'An icy world with crystalline structures and aurora effects.',
+          effect: 'visual only',
+          rarity: 'rare',
+        },
+        {
+          id: 'skin_desert', name: 'Desert World', icon: '🏜️',
+          cost: 300, maxStack: 1, category: 'cosmetics',
+          desc: 'Sandy desert world skin.',
+          detail: 'All sand dunes and ancient rock formations.',
+          effect: 'visual only',
+          rarity: 'uncommon',
+        },
+        {
+          id: 'laser_color_red', name: 'Red Laser', icon: '🔴',
+          cost: 150, maxStack: 1, category: 'cosmetics',
+          desc: 'Changes laser color to hot red.',
+          detail: 'Purely cosmetic laser recolor.',
+          effect: 'visual only',
+          rarity: 'common',
+        },
+        {
+          id: 'laser_color_green', name: 'Green Laser', icon: '🟢',
+          cost: 150, maxStack: 1, category: 'cosmetics',
+          desc: 'Changes laser color to neon green.',
+          detail: 'Purely cosmetic laser recolor.',
+          effect: 'visual only',
+          rarity: 'common',
+        },
+        {
+          id: 'explosion_rainbow', name: 'Rainbow Explosion', icon: '🌈',
+          cost: 250, maxStack: 1, category: 'cosmetics',
+          desc: 'Asteroid explosions emit rainbow particles.',
+          detail: 'Purely cosmetic explosion recolor.',
+          effect: 'visual only',
+          rarity: 'rare',
+        },
+        {
+          id: 'trail_sparkle', name: 'Sparkle Trail', icon: '✨',
+          cost: 200, maxStack: 1, category: 'cosmetics',
+          desc: 'Lasers leave a sparkle particle trail.',
+          detail: 'Adds glittering particle effects to every fired laser.',
+          effect: 'visual only',
+          rarity: 'uncommon',
+        },
+      ],
+    };
+
+    const RARITY_COLORS = {
+      common:   { bg: '#1a2a1a', border: '#3dffa0', label: 'COMMON',   text: '#3dffa0' },
+      uncommon: { bg: '#1a2030', border: '#38beff', label: 'UNCOMMON', text: '#38beff' },
+      rare:     { bg: '#1a1a35', border: '#b87dff', label: 'RARE',     text: '#b87dff' },
+      epic:     { bg: '#2a1520', border: '#ff4466', label: 'EPIC',     text: '#ff4466' },
+    };
+
+    class ShopPage {
+      constructor() {
+        this.save      = new SaveManager('planetDefender');
+        this.rng       = new RNG();
+        this.activeTab = 'powerups';
+        this.selected  = null;
+        this.bgCtx     = null;
+        this.stars     = [];
+        this.init();
+      }
+
+      init() {
+        this.setupBgCanvas();
+        this.buildStars(200);
+        this.loadBalance();
+        this.bindTabs();
+        this.bindBack();
+        this.renderTab('powerups');
+        this.animateBg();
+        this.bindPurchaseButton();
+        this.bindMessage();
+      }
+
+      /* ── Save / balance ── */
+      loadBalance() {
+        const coins = this.save.getCoins();
+        document.getElementById('shop-balance').textContent = coins.toLocaleString();
+        return coins;
+      }
+
+      /* ── Tabs ── */
+      bindTabs() {
+        document.querySelectorAll('.shop-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            this.activeTab = tab.dataset.tab;
+            this.selected  = null;
+            this.updateSelectionBar();
+            this.renderTab(this.activeTab);
+          });
+        });
+      }
+
+      /* ── Back button ── */
+      bindBack() {
+        document.getElementById('btn-back').addEventListener('click', () => {
+          this.send('navigate', 'back');
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' || e.key === 'Backspace') {
+            this.send('navigate', 'back');
+          }
+        });
+      }
+
+      bindMessage() {
+        window.addEventListener('message', (e) => {
+          // ScreenManager sends SAVE_SNAPSHOT after a purchase to refresh balance
+          if (e.data && e.data.type === 'SAVE_SNAPSHOT') {
+            const coins = (e.data.data && e.data.data.coins != null)
+              ? e.data.data.coins
+              : this.save.getCoins();
+            const el = document.getElementById('shop-balance');
+            if (el) el.textContent = coins.toLocaleString();
+          }
+        });
+      }
+
+      send(type, payload) {
+        if (window.parent !== window) {
+          window.parent.postMessage({ type, data: payload }, '*');
+        }
+      }
+
+      /* ── Render grid ── */
+      renderTab(tabKey) {
+        const grid   = document.getElementById('shop-grid');
+        const empty  = document.getElementById('shop-empty');
+        const items  = SHOP_CATALOG[tabKey] || [];
+        grid.innerHTML = '';
+        if (!items.length) {
+          empty.classList.remove('hidden');
+          return;
+        }
+        empty.classList.add('hidden');
+        items.forEach(item => {
+          const card = this.buildCard(item);
+          grid.appendChild(card);
+        });
+      }
+
+      buildCard(item) {
+        const inv   = this.save.getInventory();
+        const upgrades = this.save.getUpgrades();
+        const coins = this.save.getCoins();
+        const rar   = RARITY_COLORS[item.rarity] || RARITY_COLORS.common;
+
+        let owned = 0;
+        if (item.category === 'upgrades') {
+          owned = upgrades[item.upgradeKey] || 0;
+        } else {
+          owned = inv[item.id] || 0;
+        }
+
+        const maxed    = (owned >= (item.maxLevel || item.maxStack));
+        const canAfford = coins >= item.cost;
+        const isSelected = this.selected && this.selected.id === item.id;
+
+        const card = document.createElement('div');
+        card.className = `shop-card rarity-${item.rarity}${isSelected ? ' selected' : ''}${maxed ? ' maxed' : ''}${!canAfford ? ' cant-afford' : ''}`;
+        card.dataset.id = item.id;
+        card.style.cssText = `
+          --card-border: ${rar.border};
+          --card-bg:     ${rar.bg};
+        `;
+
+        const stackInfo = item.category === 'upgrades'
+          ? `<div class="card-level">LVL ${owned}/${item.maxLevel}</div>`
+          : `<div class="card-stack">x${owned}/${item.maxStack}</div>`;
+
+        card.innerHTML = `
+          <div class="card-rarity-label" style="color:${rar.text}">${rar.label}</div>
+          <div class="card-icon">${item.icon}</div>
+          <div class="card-name">${item.name}</div>
+          <div class="card-desc">${item.desc}</div>
+          <div class="card-footer">
+            <div class="card-cost ${!canAfford ? 'too-expensive' : ''}">
+              🪙 ${item.cost.toLocaleString()}
+            </div>
+            ${stackInfo}
+          </div>
+          ${maxed ? '<div class="card-maxed-overlay">MAX</div>' : ''}
+        `;
+
+        card.addEventListener('click', () => {
+          this.selectItem(item);
+          document.querySelectorAll('.shop-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+        });
+
+        return card;
+      }
+
+      selectItem(item) {
+        this.selected = item;
+        this.updateSelectionBar();
+      }
+
+      updateSelectionBar() {
+        const nameEl = document.getElementById('sel-name');
+        const descEl = document.getElementById('sel-desc');
+        const buyBtn = document.getElementById('btn-buy');
+        const costEl = document.getElementById('buy-cost');
+
+        if (!this.selected) {
+          nameEl.textContent = 'Select an item';
+          descEl.textContent = '';
+          buyBtn.disabled = true;
+          costEl.textContent = '0';
+          return;
+        }
+
+        const item  = this.selected;
+        const coins = this.save.getCoins();
+        const inv   = this.save.getInventory();
+        const upgrades = this.save.getUpgrades();
+        let owned = 0;
+        if (item.category === 'upgrades') {
+          owned = upgrades[item.upgradeKey] || 0;
+        } else {
+          owned = inv[item.id] || 0;
+        }
+        const maxed = owned >= (item.maxLevel || item.maxStack);
+
+        nameEl.textContent = item.name;
+        descEl.textContent = item.detail;
+        costEl.textContent = item.cost.toLocaleString();
+        buyBtn.disabled = maxed || coins < item.cost;
+      }
+
+      bindPurchaseButton() {
+        document.getElementById('btn-buy').addEventListener('click', () => {
+          if (!this.selected) return;
+          this.attemptPurchase(this.selected);
+        });
+        document.getElementById('btn-close-no-coins').addEventListener('click', () => {
+          document.getElementById('no-coins-overlay').classList.add('hidden');
+        });
+      }
+
+      attemptPurchase(item) {
+        const coins = this.save.getCoins();
+        if (coins < item.cost) {
+          document.getElementById('no-coins-overlay').classList.remove('hidden');
+          return;
+        }
+        // Deduct coins
+        this.save.spendCoins(item.cost);
+        // Update inventory or upgrades
+        if (item.category === 'upgrades') {
+          const upgrades = this.save.getUpgrades();
+          upgrades[item.upgradeKey] = (upgrades[item.upgradeKey] || 0) + 1;
+          this.save.setUpgrades(upgrades);
+        } else {
+          const inv = this.save.getInventory();
+          inv[item.id] = (inv[item.id] || 0) + 1;
+          this.save.setInventory(inv);
+        }
+        // Notify parent
+        this.send('PURCHASE', { itemId: item.id, category: item.category });
+        // Show splash
+        this.showPurchaseSplash(item);
+        // Refresh UI
+        this.loadBalance();
+        this.renderTab(this.activeTab);
+        this.selected = null;
+        this.updateSelectionBar();
+      }
+
+      showPurchaseSplash(item) {
+        const splash = document.getElementById('purchase-splash');
+        document.getElementById('ps-icon').textContent = item.icon;
+        document.getElementById('ps-name').textContent = item.name;
+        splash.classList.remove('hidden');
+        setTimeout(() => splash.classList.add('hidden'), 1400);
+      }
+
+      /* ── Background starfield ── */
+      setupBgCanvas() {
+        const cvs = document.getElementById('shop-bg-canvas');
+        cvs.width  = window.innerWidth;
+        cvs.height = window.innerHeight;
+        this.bgCtx = cvs.getContext('2d');
+        window.addEventListener('resize', () => {
+          cvs.width  = window.innerWidth;
+          cvs.height = window.innerHeight;
+        });
+      }
+
+      buildStars(n) {
+        this.stars = [];
+        const w = window.innerWidth, h = window.innerHeight;
+        for (let i = 0; i < n; i++) {
+          this.stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: 0.4 + Math.random() * 1.4,
+            alpha: 0.2 + Math.random() * 0.6,
+            spd: 0.4 + Math.random(),
+            phase: Math.random() * Math.PI * 2,
+          });
+        }
+      }
+
+      animateBg(t = 0) {
+        const ctx = this.bgCtx;
+        const w = ctx.canvas.width, h = ctx.canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        for (const s of this.stars) {
+          const a = s.alpha * (0.6 + 0.4 * Math.sin(t * 0.001 * s.spd + s.phase));
+          ctx.globalAlpha = a;
+          ctx.fillStyle = '#c8e4ff';
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(ts => this.animateBg(ts));
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window._shopPage = new ShopPage();
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
