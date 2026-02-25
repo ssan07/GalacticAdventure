@@ -1,0 +1,194 @@
+/**
+ * css/powerup-bar.css
+ * Bottom powerup slot bar — holds up to 5 powerup cards.
+ */
+
+.powerup-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--powerbar-height);
+  z-index: var(--z-powerbar);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-6);
+  background: linear-gradient(to top, rgba(3,7,18,0.92) 70%, rgba(3,7,18,0) 100%);
+  backdrop-filter: blur(var(--blur-sm));
+  border-top: 1px solid rgba(56,190,255,0.08);
+  pointer-events: all;
+}
+.powerup-bar.hidden { display: none; }
+
+/* ── Slots container ── */
+.pu-slots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ── Single slot ── */
+.pu-slot {
+  position: relative;
+  width: 52px; height: 52px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-bounce),
+    box-shadow var(--dur-fast) var(--ease-out);
+  user-select: none;
+}
+
+.pu-slot:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-border-2);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+.pu-slot:active { transform: translateY(0) scale(0.96); }
+.pu-slot.empty {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Slot icon */
+.pu-slot-icon {
+  /* icon container may hold emoji text or an <img> element */
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  pointer-events: none;
+  /* use a font stack that includes emoji glyphs so icons are always visible */
+  font-family: system-ui, -apple-system, 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+}
+
+/* image fallback support */
+.pu-slot-icon img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+/* Count badge */
+.pu-slot-count {
+  position: absolute;
+  bottom: 3px; right: 4px;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-text);
+  background: rgba(0,0,0,0.6);
+  border-radius: var(--radius-pill);
+  padding: 0 3px;
+  line-height: 14px;
+  min-width: 14px;
+  text-align: center;
+}
+
+/* Key badge */
+.pu-slot-key {
+  position: absolute;
+  top: 2px; left: 4px;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+/* Active glow when powerup is running */
+.pu-slot.active-buff {
+  border-color: var(--color-accent);
+  box-shadow: var(--glow-accent-l), inset 0 0 12px var(--color-accent-dim);
+}
+.pu-slot.active-buff .pu-slot-icon {
+  animation: pu-active-pulse 1s ease-in-out infinite;
+}
+@keyframes pu-active-pulse {
+  0%, 100% { filter: drop-shadow(0 0 2px currentColor); }
+  50%       { filter: drop-shadow(0 0 8px currentColor); }
+}
+
+/* Timer ring – drawn as SVG overlay */
+.pu-slot-timer-ring {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+}
+
+/* Activate flash */
+.pu-slot.activate-flash {
+  animation: pu-activate-flash var(--dur-slow) var(--ease-bounce);
+}
+@keyframes pu-activate-flash {
+  0%   { transform: scale(1); background: var(--color-surface); }
+  25%  { transform: scale(1.2); background: rgba(56,190,255,0.2); border-color: var(--color-accent); }
+  100% { transform: scale(1); }
+}
+
+/* Hint text */
+.pu-hint {
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  position: absolute;
+  right: var(--space-6);
+}
+
+/* ── Powerup tooltip ── */
+.pu-tooltip {
+  position: fixed;
+  bottom: calc(var(--powerbar-height) + var(--space-3));
+  transform: translateX(-50%);
+  z-index: 50;
+  background: var(--color-surface);
+  border: var(--border-medium);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  backdrop-filter: blur(var(--blur-md));
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  max-width: 220px;
+}
+.pu-tooltip.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+.pu-tooltip-name {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-accent);
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: 3px;
+}
+.pu-tooltip-desc {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-dim);
+  line-height: var(--leading-snug);
+}
+.pu-tooltip-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-gold);
+  margin-top: 3px;
+}

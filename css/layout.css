@@ -1,0 +1,141 @@
+/**
+ * css/layout.css
+ * Root app layout — positions canvas, HUD, powerbar, floater layer.
+ */
+
+#app {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+/* ── Canvas container ── */
+#canvas-container {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-canvas);
+}
+
+#game-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  display: block;
+}
+
+/* Screen flash overlay for hit/damage effects */
+#screen-flash {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: rgba(255, 68, 102, 0.35);
+  z-index: 5;
+  transition: opacity 80ms;
+}
+#screen-flash.flash-red   { background: rgba(255, 68, 102, 0.40); }
+#screen-flash.flash-green { background: rgba(61, 255, 160, 0.25); }
+#screen-flash.flash-white { background: rgba(255, 255, 255, 0.30); }
+#screen-flash.flash-gold  { background: rgba(255, 216, 77, 0.30); }
+#screen-flash.active      { opacity: 1; }
+
+/* ── Floater layer ── */
+#floater-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--z-floaters);
+  overflow: hidden;
+}
+
+.floater {
+  position: absolute;
+  font-family: var(--font-display);
+  font-size: var(--text-md);
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 0 8px currentColor;
+  animation: floater-rise var(--dur-slower) var(--ease-out) forwards;
+}
+.floater-score   { color: var(--color-gold); }
+.floater-coin    { color: var(--color-gold); font-size: var(--text-sm); }
+.floater-damage  { color: var(--color-red); }
+.floater-heal    { color: var(--color-green); }
+.floater-miss    { color: var(--color-text-muted); font-size: var(--text-sm); }
+.floater-wave    { color: var(--color-accent); font-size: var(--text-xl); letter-spacing: var(--tracking-wider); }
+
+@keyframes floater-rise {
+  0%   { opacity: 1;   transform: translateY(0) scale(1); }
+  20%  { opacity: 1;   transform: translateY(-12px) scale(1.1); }
+  100% { opacity: 0;   transform: translateY(-60px) scale(0.85); }
+}
+
+/* ── Toast notifications ── */
+#toast-stack {
+  position: fixed;
+  top: calc(var(--hud-height) + var(--space-4));
+  right: var(--space-4);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  letter-spacing: var(--tracking-wide);
+  backdrop-filter: blur(var(--blur-md));
+  border: var(--border-medium);
+  box-shadow: var(--shadow-md);
+  animation: toast-in var(--dur-enter) var(--ease-bounce) forwards;
+  pointer-events: all;
+  max-width: 320px;
+}
+.toast-exit {
+  animation: toast-out var(--dur-exit) var(--ease-in-out) forwards;
+}
+.toast-default  { background: var(--color-surface); color: var(--color-text); }
+.toast-success  { background: rgba(61,255,160,0.1); color: var(--color-green); border-color: var(--color-green); }
+.toast-warning  { background: rgba(255,216,77,0.1); color: var(--color-gold); border-color: var(--color-gold); }
+.toast-error    { background: rgba(255,68,102,0.1); color: var(--color-red); border-color: var(--color-red); }
+.toast-powerup  { background: rgba(56,190,255,0.1); color: var(--color-accent); border-color: var(--color-accent); }
+
+@keyframes toast-in  { from { opacity:0; transform:translateX(40px) scale(0.88); } to { opacity:1; transform:translateX(0) scale(1); } }
+@keyframes toast-out { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
+
+/* ── Screen manager iframe layer ── */
+#screen-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-screens);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-enter) var(--ease-out);
+}
+#screen-overlay.visible {
+  pointer-events: all;
+  opacity: 1;
+}
+#screen-overlay #screen-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+}

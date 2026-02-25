@@ -1,0 +1,129 @@
+/**
+ * css/notifications.css
+ * Toast stack, wave announce banners, pickup text, combo counters.
+ */
+
+/* Already in layout.css: #toast-stack, .toast */
+
+/* ── Achievement unlock notification ── */
+.ach-unlock-banner {
+  position: fixed;
+  bottom: calc(var(--powerbar-height) + var(--space-6));
+  right: var(--space-4);
+  z-index: var(--z-toast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(135deg, rgba(20,30,60,0.96), rgba(10,18,40,0.96));
+  border: 1px solid var(--color-gold);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glow-gold-l), var(--shadow-xl);
+  backdrop-filter: blur(var(--blur-md));
+  animation: ach-banner-in var(--dur-enter) var(--ease-bounce) forwards;
+  max-width: 300px;
+}
+.ach-unlock-banner.exit {
+  animation: ach-banner-out var(--dur-exit) var(--ease-in-out) forwards;
+}
+@keyframes ach-banner-in  { from { opacity:0; transform:translateX(100%) scale(0.8); } to { opacity:1; transform:translateX(0) scale(1); } }
+@keyframes ach-banner-out { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(80px); } }
+
+.ach-banner-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 6px var(--color-gold-glow));
+}
+.ach-banner-body { flex: 1; }
+.ach-banner-label {
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-gold);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+.ach-banner-name {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-white);
+  letter-spacing: var(--tracking-wide);
+}
+.ach-banner-desc {
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-text-dim);
+  margin-top: 2px;
+}
+
+/* ── Combo counter ── */
+.combo-counter {
+  position: fixed;
+  top: calc(var(--hud-height) + var(--space-4));
+  right: var(--space-6);
+  z-index: var(--z-floaters);
+  text-align: right;
+  pointer-events: none;
+}
+.combo-number {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 900;
+  color: var(--color-orange);
+  text-shadow: 0 0 20px rgba(255,140,66,0.6);
+  display: block;
+  line-height: 1;
+}
+.combo-label {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-orange);
+  opacity: 0.7;
+}
+.combo-counter.high { --combo-col: var(--color-red); }
+.combo-counter.high .combo-number { color: var(--color-red); text-shadow: 0 0 30px var(--color-red-glow); animation: pulse-scale 0.5s ease-in-out infinite; }
+
+/* ── Multiplier badge ── */
+.score-multiplier-badge {
+  position: fixed;
+  top: calc(var(--hud-height) + var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-floaters);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 900;
+  color: var(--color-gold);
+  text-shadow: var(--glow-gold-l);
+  pointer-events: none;
+  padding: var(--space-2) var(--space-5);
+  background: rgba(255,216,77,0.10);
+  border: 1px solid rgba(255,216,77,0.35);
+  border-radius: var(--radius-pill);
+  animation: pop-in var(--dur-slow) var(--ease-bounce) forwards;
+}
+
+/* ── Boss warning banner ── */
+.boss-warning-banner {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: rgba(255,68,102,0.15);
+  border-bottom: 2px solid var(--color-red);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 900;
+  color: var(--color-red);
+  letter-spacing: var(--tracking-widest);
+  text-shadow: var(--glow-red);
+  animation: shake-h 0.5s var(--ease-out), fade-out 0.4s 2.8s var(--ease-in-out) forwards;
+  pointer-events: none;
+}
