@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Planet Defender – Settings</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/reset.css"/>
+  <link rel="stylesheet" href="../css/buttons.css"/>
+  <link rel="stylesheet" href="../css/animations.css"/>
+  <link rel="stylesheet" href="../css/settings-screen.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-settings">
+
+  <canvas id="settings-bg-canvas"></canvas>
+
+  <div class="settings-wrapper">
+    <header class="settings-header">
+      <button class="btn btn-ghost" id="btn-back">← BACK</button>
+      <h1 class="settings-title">⚙ SETTINGS</h1>
+    </header>
+
+    <div class="settings-body">
+
+      <!-- Audio section -->
+      <section class="settings-section">
+        <h2 class="settings-section-title">🔊 AUDIO</h2>
+        <div class="settings-row">
+          <label class="settings-label" for="sfx-volume">Sound Effects</label>
+          <div class="settings-control">
+            <input type="range" id="sfx-volume" min="0" max="100" value="80"/>
+            <span class="settings-val" id="sfx-volume-val">80%</span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="music-volume">Music</label>
+          <div class="settings-control">
+            <input type="range" id="music-volume" min="0" max="100" value="60"/>
+            <span class="settings-val" id="music-volume-val">60%</span>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="sfx-mute">Mute All</label>
+          <div class="settings-control">
+            <input type="checkbox" id="sfx-mute"/>
+            <label class="toggle-visual" for="sfx-mute"></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Graphics section -->
+      <section class="settings-section">
+        <h2 class="settings-section-title">🎨 GRAPHICS</h2>
+        <div class="settings-row">
+          <label class="settings-label" for="particles">Particle Effects</label>
+          <div class="settings-control">
+            <select id="particles">
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+              <option value="off">Off</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="screen-shake">Screen Shake</label>
+          <div class="settings-control">
+            <input type="checkbox" id="screen-shake" checked/>
+            <label class="toggle-visual" for="screen-shake"></label>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="star-density">Starfield Density</label>
+          <div class="settings-control">
+            <select id="star-density">
+              <option value="high">High (300)</option>
+              <option value="medium" selected>Medium (150)</option>
+              <option value="low">Low (60)</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="show-fps">Show FPS</label>
+          <div class="settings-control">
+            <input type="checkbox" id="show-fps"/>
+            <label class="toggle-visual" for="show-fps"></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gameplay section -->
+      <section class="settings-section">
+        <h2 class="settings-section-title">🎮 GAMEPLAY</h2>
+        <div class="settings-row">
+          <label class="settings-label" for="difficulty">Difficulty</label>
+          <div class="settings-control">
+            <select id="difficulty">
+              <option value="easy">Easy</option>
+              <option value="normal" selected>Normal</option>
+              <option value="hard">Hard</option>
+              <option value="insane">Insane</option>
+            </select>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="auto-pause">Auto-Pause on Focus Loss</label>
+          <div class="settings-control">
+            <input type="checkbox" id="auto-pause" checked/>
+            <label class="toggle-visual" for="auto-pause"></label>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="show-dmg-numbers">Damage Numbers</label>
+          <div class="settings-control">
+            <input type="checkbox" id="show-dmg-numbers" checked/>
+            <label class="toggle-visual" for="show-dmg-numbers"></label>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="show-health-bars">Enemy Health Bars</label>
+          <div class="settings-control">
+            <input type="checkbox" id="show-health-bars" checked/>
+            <label class="toggle-visual" for="show-health-bars"></label>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="rapid-click">Rapid Click Mode</label>
+          <div class="settings-control">
+            <input type="checkbox" id="rapid-click"/>
+            <label class="toggle-visual" for="rapid-click"></label>
+          </div>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label" for="auto-collect-coins">Auto Collect Coins</label>
+          <div class="settings-control">
+            <input type="checkbox" id="auto-collect-coins"/>
+            <label class="toggle-visual" for="auto-collect-coins"></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data section -->
+      <section class="settings-section">
+        <h2 class="settings-section-title">💾 DATA</h2>
+        <div class="settings-row">
+          <label class="settings-label">Game Version</label>
+          <span class="settings-info">v2.0.0</span>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Total Coins Ever Earned</label>
+          <span class="settings-info" id="stats-total-coins">0</span>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Total Games Played</label>
+          <span class="settings-info" id="stats-games-played">0</span>
+        </div>
+        <div class="settings-row">
+          <label class="settings-label">Total Asteroids Destroyed</label>
+          <span class="settings-info" id="stats-total-asts">0</span>
+        </div>
+        <div class="settings-row settings-row-danger">
+          <label class="settings-label danger-label">Reset All Progress</label>
+          <button class="btn btn-ghost btn-danger" id="btn-reset-save">🗑 RESET</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Reset confirm modal -->
+  <div class="confirm-modal hidden" id="reset-modal">
+    <div class="confirm-box">
+      <p class="confirm-title">⚠️ RESET ALL PROGRESS?</p>
+      <p class="confirm-body">This will delete all coins, upgrades, scores and save data. This cannot be undone!</p>
+      <div class="confirm-btns">
+        <button class="btn btn-primary btn-danger" id="reset-yes">YES, RESET</button>
+        <button class="btn btn-ghost" id="reset-no">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/utils/MathUtils.js"></script>
+  <script src="../js/utils/RNG.js"></script>
+  <script src="../js/utils/SaveManager.js"></script>
+  <script>
+    const SETTINGS_KEY = 'pd_settings';
+
+    class SettingsPage {
+      constructor() {
+        this.save = new SaveManager('planetDefender');
+        this.rng  = new RNG();
+        this.ctx  = null;
+        this.stars = [];
+        this.settings = this.loadSettings();
+        this.init();
+      }
+
+      loadSettings() {
+        try {
+          const raw = localStorage.getItem(SETTINGS_KEY);
+          return raw ? JSON.parse(raw) : this.defaults();
+        } catch { return this.defaults(); }
+      }
+
+      defaults() {
+        return {
+          sfxVolume: 80, musicVolume: 60, sfxMute: false,
+          particles: 'high', screenShake: true, starDensity: 'medium',
+          showFps: false, difficulty: 'normal', autoPause: true,
+          showDmgNumbers: true, showHealthBars: true,
+          rapidClick: false, autoCollectCoins: false,
+        };
+      }
+
+      saveSettings() {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(this.settings));
+        this.sendSettings();
+      }
+
+      sendSettings() {
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: 'SETTINGS_CHANGE', data: this.settings }, '*');
+        }
+      }
+
+      init() {
+        this.setupBgCanvas();
+        this.buildStars(140);
+        this.populateFields();
+        this.bindControls();
+        this.loadStats();
+        this.bindButtons();
+        this.animateBg();
+      }
+
+      populateFields() {
+        const s = this.settings;
+        this.setVal('sfx-volume',      s.sfxVolume);
+        this.setVal('music-volume',    s.musicVolume);
+        this.setChecked('sfx-mute',    s.sfxMute);
+        this.setVal('particles',       s.particles);
+        this.setChecked('screen-shake',s.screenShake);
+        this.setVal('star-density',    s.starDensity);
+        this.setChecked('show-fps',    s.showFps);
+        this.setVal('difficulty',      s.difficulty);
+        this.setChecked('auto-pause',  s.autoPause);
+        this.setChecked('show-dmg-numbers', s.showDmgNumbers);
+        this.setChecked('show-health-bars', s.showHealthBars);
+        this.setChecked('rapid-click', s.rapidClick);
+        this.setChecked('auto-collect-coins', s.autoCollectCoins);
+        document.getElementById('sfx-volume-val').textContent   = s.sfxVolume + '%';
+        document.getElementById('music-volume-val').textContent = s.musicVolume + '%';
+      }
+
+      setVal(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      }
+
+      setChecked(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!val;
+      }
+
+      bindControls() {
+        const bind = (id, key, isCheck = false) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('input', () => {
+            this.settings[key] = isCheck ? el.checked : (isNaN(el.value) ? el.value : Number(el.value));
+            this.saveSettings();
+            if (id === 'sfx-volume')   document.getElementById('sfx-volume-val').textContent   = el.value + '%';
+            if (id === 'music-volume') document.getElementById('music-volume-val').textContent = el.value + '%';
+          });
+        };
+        bind('sfx-volume',      'sfxVolume');
+        bind('music-volume',    'musicVolume');
+        bind('sfx-mute',        'sfxMute',         true);
+        bind('particles',       'particles');
+        bind('screen-shake',    'screenShake',     true);
+        bind('star-density',    'starDensity');
+        bind('show-fps',        'showFps',         true);
+        bind('difficulty',      'difficulty');
+        bind('auto-pause',      'autoPause',       true);
+        bind('show-dmg-numbers','showDmgNumbers',  true);
+        bind('show-health-bars','showHealthBars',  true);
+        bind('rapid-click',     'rapidClick',      true);
+        bind('auto-collect-coins','autoCollectCoins',true);
+      }
+
+      loadStats() {
+        const gs = this.save.getGlobalStats();
+        document.getElementById('stats-total-coins').textContent  = (gs.totalCoins||0).toLocaleString();
+        document.getElementById('stats-games-played').textContent = (gs.gamesPlayed||0).toLocaleString();
+        document.getElementById('stats-total-asts').textContent   = (gs.totalAsteroids||0).toLocaleString();
+      }
+
+      bindButtons() {
+        document.getElementById('btn-back').addEventListener('click', () => {
+          this.send('navigate', 'back');
+        });
+        document.getElementById('btn-reset-save').addEventListener('click', () => {
+          document.getElementById('reset-modal').classList.remove('hidden');
+        });
+        document.getElementById('reset-yes').addEventListener('click', () => {
+          this.save.resetAll();
+          localStorage.removeItem(SETTINGS_KEY);
+          document.getElementById('reset-modal').classList.add('hidden');
+          this.send('navigate', 'title');
+        });
+        document.getElementById('reset-no').addEventListener('click', () => {
+          document.getElementById('reset-modal').classList.add('hidden');
+        });
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') this.send('navigate', 'back');
+        });
+      }
+
+      send(type, payload) {
+        if (window.parent !== window) {
+          window.parent.postMessage({ type, data: payload }, '*');
+        }
+      }
+
+      setupBgCanvas() {
+        const cvs = document.getElementById('settings-bg-canvas');
+        cvs.width  = window.innerWidth;
+        cvs.height = window.innerHeight;
+        this.ctx   = cvs.getContext('2d');
+        window.addEventListener('resize', () => {
+          cvs.width  = window.innerWidth;
+          cvs.height = window.innerHeight;
+        });
+      }
+
+      buildStars(n) {
+        this.stars = [];
+        const w = window.innerWidth, h = window.innerHeight;
+        for (let i = 0; i < n; i++) {
+          this.stars.push({
+            x: Math.random()*w, y: Math.random()*h,
+            r: 0.4 + Math.random()*1.2,
+            alpha: 0.12 + Math.random()*0.4,
+            phase: Math.random()*Math.PI*2, spd: 0.3+Math.random()*0.8,
+          });
+        }
+      }
+
+      animateBg(t = 0) {
+        const ctx = this.ctx;
+        const w = ctx.canvas.width, h = ctx.canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        for (const s of this.stars) {
+          const a = s.alpha * (0.5 + 0.5 * Math.sin(t * 0.001 * s.spd + s.phase));
+          ctx.globalAlpha = a;
+          ctx.fillStyle = '#c8e4ff';
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(ts => this.animateBg(ts));
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window._settingsPage = new SettingsPage();
+    });
+  </script>
+</body>
+</html>

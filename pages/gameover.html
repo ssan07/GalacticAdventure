@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Planet Defender – Game Over</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/reset.css"/>
+  <link rel="stylesheet" href="../css/buttons.css"/>
+  <link rel="stylesheet" href="../css/animations.css"/>
+  <link rel="stylesheet" href="../css/gameover-screen.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="page-gameover">
+
+  <!-- Shattered planet background -->
+  <canvas id="gameover-canvas"></canvas>
+
+  <div class="go-container" id="go-container">
+
+    <!-- Title area -->
+    <div class="go-title-area">
+      <div class="go-planet-destroyed" id="go-planet-anim">💥</div>
+      <h1 class="go-title" id="go-title">PLANET DESTROYED</h1>
+      <p class="go-subtitle">Your world crumbled. Try again, Commander.</p>
+    </div>
+
+    <!-- New high score banner -->
+    <div class="go-new-best hidden" id="go-new-best">
+      <span class="best-star">⭐</span>
+      NEW HIGH SCORE!
+      <span class="best-star">⭐</span>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="go-stats-grid" id="go-stats-grid">
+      <!-- injected by JS -->
+    </div>
+
+    <!-- Wave progress bar -->
+    <div class="go-wave-progress" id="go-wave-progress">
+      <div class="gwp-label">WAVE PROGRESS</div>
+      <div class="gwp-bar-outer">
+        <div class="gwp-bar-fill" id="gwp-bar-fill"></div>
+      </div>
+      <div class="gwp-sublabel" id="gwp-sublabel">Wave 1 of ∞</div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="go-actions">
+      <button class="btn btn-primary btn-glow btn-xl" id="btn-retry">↺ RETRY</button>
+      <div class="btn-row">
+        <button class="btn btn-outline btn-md" id="btn-shop">🛒 SHOP</button>
+        <button class="btn btn-outline btn-md" id="btn-leaderboard">🏆 SCORES</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-menu">⌂ MAIN MENU</button>
+    </div>
+
+    <!-- Share button -->
+    <button class="btn btn-ghost btn-share" id="btn-share">📤 SHARE RESULT</button>
+  </div>
+
+  <script src="../js/utils/MathUtils.js"></script>
+  <script src="../js/utils/SaveManager.js"></script>
+  <script src="../js/utils/RNG.js"></script>
+  <script>
+    /**
+     * GameOverPage – receives game results via postMessage or URL params,
+     * displays stats, and communicates back to parent window.
+     */
+    class GameOverPage {
+      constructor() {
+        this.save   = new SaveManager('planetDefender');
+        this.rng    = new RNG();
+        this.ctx    = null;
+        this.debris = [];
+        this.stats  = this.getStats();
+        this.init();
+      }
+
+      getStats() {
+        // Try to get from parent via URL hash or sessionStorage
+        try {
+          const raw = sessionStorage.getItem('pd_gameover');
+          if (raw) {
+            try { return JSON.parse(raw); } catch(e) {}
+          }
+        } catch (err) {
+          // If access is blocked by sandbox policies, ignore and continue
+        }
+        return {
+          score: 0, wave: 1, asteroidsDestroyed: 0,
+          coinsEarned: 0, shotsFired: 0, accuracy: 0,
+          timePlayed: 0, isNewBest: false, prevBest: 0,
+        };
+      }
+
+      init() {
+        this.setupCanvas();
+        this.buildDebris();
+        this.renderStats();
+        this.bindButtons();
+        this.animate();
+        this.revealContent();
+        // Signal parent that we're ready to receive game-over stats
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: 'SCREEN_READY' }, '*');
+        }
+        // Listen for stats injected by parent via DATA message
+        window.addEventListener('message', (e) => {
+          if (e.data && e.data.type === 'DATA' && e.data.data && e.data.data.score !== undefined) {
+            this.stats = e.data.data;
+            this.renderStats();
+          }
+        });
+      }
+
+      renderStats() {
+        const s  = this.stats;
+        const grid = document.getElementById('go-stats-grid');
+
+        // Check new best
+        const best = this.save.getBestScore();
+        if (s.score > best) {
+          this.save.setBestScore(s.score);
+          s.isNewBest = true;
+        }
+        if (s.isNewBest) {
+          document.getElementById('go-new-best').classList.remove('hidden');
+        }
+
+        // Wave progress bar
+        const waveMax = 50; // visual cap
+        const wavePercent = Math.min((s.wave / waveMax) * 100, 100);
+        document.getElementById('gwp-bar-fill').style.width = wavePercent + '%';
+        document.getElementById('gwp-sublabel').textContent = `Wave ${s.wave} reached`;
+
+        // Format play time
+        const mins = Math.floor(s.timePlayed / 60);
+        const secs = s.timePlayed % 60;
+        const timeStr = mins > 0
+          ? `${mins}m ${secs}s`
+          : `${secs}s`;
+
+        const statsData = [
+          { icon: '🏆', label: 'FINAL SCORE', value: s.score.toLocaleString(), highlight: s.isNewBest },
+          { icon: '🌊', label: 'WAVE REACHED', value: s.wave },
+          { icon: '☄️', label: 'ASTEROIDS DESTROYED', value: (s.asteroidsDestroyed || 0).toLocaleString() },
+          { icon: '🪙', label: 'COINS EARNED', value: (s.coinsEarned || 0).toLocaleString() },
+          { icon: '🎯', label: 'SHOTS FIRED', value: (s.shotsFired || 0).toLocaleString() },
+          { icon: '💫', label: 'ACCURACY', value: `${s.accuracy || 0}%` },
+          { icon: '⏱️', label: 'TIME PLAYED', value: timeStr },
+          { icon: '📊', label: 'PREV BEST', value: (s.prevBest || this.save.getBestScore()).toLocaleString() },
+        ];
+
+        grid.innerHTML = statsData.map(stat => `
+          <div class="go-stat-card ${stat.highlight ? 'stat-highlight' : ''}">
+            <span class="stat-icon">${stat.icon}</span>
+            <span class="stat-value">${stat.value}</span>
+            <span class="stat-label">${stat.label}</span>
+          </div>
+        `).join('');
+
+        // Save max wave
+        const maxWave = this.save.getMaxWave();
+        if (s.wave > maxWave) this.save.setMaxWave(s.wave);
+
+        // Save to leaderboard
+        this.save.addLeaderboardEntry({ score: s.score, wave: s.wave, date: Date.now() });
+      }
+
+      bindButtons() {
+        document.getElementById('btn-retry').addEventListener('click', () => {
+          this.send('navigate', 'retry');
+        });
+        document.getElementById('btn-shop').addEventListener('click', () => {
+          this.send('navigate', 'shop');
+        });
+        document.getElementById('btn-leaderboard').addEventListener('click', () => {
+          this.send('navigate', 'leaderboard');
+        });
+        document.getElementById('btn-menu').addEventListener('click', () => {
+          this.send('navigate', 'title');
+        });
+        document.getElementById('btn-share').addEventListener('click', () => {
+          this.shareResult();
+        });
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            document.getElementById('btn-retry').click();
+          }
+          if (e.key === 'Escape') {
+            document.getElementById('btn-menu').click();
+          }
+        });
+      }
+
+      send(type, payload) {
+        if (window.parent !== window) {
+          window.parent.postMessage({ type, data: payload }, '*');
+        }
+      }
+
+      shareResult() {
+        const s   = this.stats;
+        const txt = `🌍 Planet Defender: Score ${s.score.toLocaleString()} on Wave ${s.wave}! ${s.asteroidsDestroyed} asteroids destroyed. Can you beat me?`;
+        if (navigator.share) {
+          navigator.share({ title: 'Planet Defender', text: txt }).catch(() => {});
+        } else if (navigator.clipboard) {
+          navigator.clipboard.writeText(txt).then(() => {
+            alert('Result copied to clipboard!');
+          });
+        }
+      }
+
+      /* ── Canvas: debris effect ── */
+      setupCanvas() {
+        const cvs = document.getElementById('gameover-canvas');
+        cvs.width  = window.innerWidth;
+        cvs.height = window.innerHeight;
+        this.ctx = cvs.getContext('2d');
+        window.addEventListener('resize', () => {
+          cvs.width  = window.innerWidth;
+          cvs.height = window.innerHeight;
+          this.buildDebris();
+        });
+      }
+
+      buildDebris() {
+        this.debris = [];
+        const cx = window.innerWidth  * 0.5;
+        const cy = window.innerHeight * 0.42;
+        const count = 80;
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 0.3 + Math.random() * 1.4;
+          this.debris.push({
+            x: cx, y: cy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 1.2,
+            r: 2 + Math.random() * 8,
+            alpha: 0.5 + Math.random() * 0.5,
+            fade: 0.0008 + Math.random() * 0.0015,
+            color: this.rng.pick(['#ff4466','#ff8844','#ffd844','#b87dff','#3a80c8']),
+            rot: Math.random() * Math.PI * 2,
+            rotSpd: (Math.random() - 0.5) * 0.04,
+            verts: this.buildChunkVerts(4 + Math.floor(Math.random() * 4)),
+          });
+        }
+      }
+
+      buildChunkVerts(n) {
+        const v = [];
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * Math.PI * 2;
+          const r = 0.6 + Math.random() * 0.8;
+          v.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
+        }
+        return v;
+      }
+
+      animate(t = 0) {
+        const ctx = this.ctx;
+        const w = ctx.canvas.width, h = ctx.canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        // Dark fade overlay
+        ctx.fillStyle = 'rgba(3,7,18,0.07)';
+        ctx.fillRect(0, 0, w, h);
+
+        // Debris chunks
+        for (const d of this.debris) {
+          if (d.alpha <= 0) continue;
+          d.x += d.vx;
+          d.y += d.vy;
+          d.vy += 0.012; // gravity
+          d.rot += d.rotSpd;
+          d.alpha -= d.fade;
+
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, d.alpha);
+          ctx.translate(d.x, d.y);
+          ctx.rotate(d.rot);
+          ctx.scale(d.r, d.r);
+          ctx.fillStyle = d.color;
+          ctx.beginPath();
+          ctx.moveTo(d.verts[0].x, d.verts[0].y);
+          for (let i = 1; i < d.verts.length; i++) {
+            ctx.lineTo(d.verts[i].x, d.verts[i].y);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        requestAnimationFrame(ts => this.animate(ts));
+      }
+
+      revealContent() {
+        setTimeout(() => {
+          document.getElementById('go-container').classList.add('revealed');
+        }, 200);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      window._goPage = new GameOverPage();
+    });
+  </script>
+</body>
+</html>
